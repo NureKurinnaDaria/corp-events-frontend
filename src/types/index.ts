@@ -1,11 +1,15 @@
 export type Role = "EMPLOYEE" | "ADMIN";
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  fullName: string | null;
+  phone: string | null;
+  position: string | null;
+  avatarUrl: string | null;
   role: Role;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Category {

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+import Layout from "../components/Layout";
 
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
@@ -20,11 +21,14 @@ export default function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* Employee */}
       <Route
         path="/events"
         element={
           <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
-            <EventsPage />
+            <Layout>
+              <EventsPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -32,7 +36,9 @@ export default function AppRouter() {
         path="/events/:id"
         element={
           <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
-            <EventDetailPage />
+            <Layout>
+              <EventDetailPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -40,16 +46,21 @@ export default function AppRouter() {
         path="/my-registrations"
         element={
           <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
-            <MyRegistrationsPage />
+            <Layout>
+              <MyRegistrationsPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
 
+      {/* Admin */}
       <Route
         path="/admin/events"
         element={
           <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminEventsPage />
+            <Layout>
+              <AdminEventsPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -57,7 +68,9 @@ export default function AppRouter() {
         path="/admin/events/create"
         element={
           <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminEventCreatePage />
+            <Layout>
+              <AdminEventCreatePage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -65,7 +78,9 @@ export default function AppRouter() {
         path="/admin/events/:id"
         element={
           <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminEventDetailPage />
+            <Layout>
+              <AdminEventDetailPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -73,7 +88,9 @@ export default function AppRouter() {
         path="/admin/events/:id/edit"
         element={
           <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminEventEditPage />
+            <Layout>
+              <AdminEventEditPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -81,7 +98,9 @@ export default function AppRouter() {
         path="/admin/categories"
         element={
           <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminCategoriesPage />
+            <Layout>
+              <AdminCategoriesPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -89,16 +108,21 @@ export default function AppRouter() {
         path="/admin/analytics"
         element={
           <ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminAnalyticsPage />
+            <Layout>
+              <AdminAnalyticsPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
 
+      {/* Shared */}
       <Route
         path="/profile"
         element={
           <ProtectedRoute allowedRoles={["EMPLOYEE", "ADMIN"]}>
-            <ProfilePage />
+            <Layout>
+              <ProfilePage />
+            </Layout>
           </ProtectedRoute>
         }
       />
