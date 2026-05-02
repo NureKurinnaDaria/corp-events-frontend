@@ -1,5 +1,7 @@
 export type Role = "EMPLOYEE" | "ADMIN";
 
+export type EventStatus = "PUBLISHED" | "ONGOING" | "COMPLETED" | "CANCELED";
+
 export interface User {
   id: string;
   email: string;
@@ -13,32 +15,37 @@ export interface User {
 }
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
 }
 
-export type EventStatus = "PLANNED" | "ONGOING" | "COMPLETED" | "CANCELED";
-
 export interface Event {
-  id: number;
+  id: string;
   title: string;
-  description: string;
-  date: string;
-  location: string;
+  description: string | null;
+  startAt: string;
+  endAt: string;
+  format: "ONLINE" | "OFFLINE";
   status: EventStatus;
-  category: Category;
+  location: string | null;
+  onlineUrl: string | null;
+  maxParticipants: number | null;
   participantsCount: number;
-  averageRating?: number;
+  categoryId: string | null;
+  category: Category;
+  createdById: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Registration {
-  id: number;
+  id: string;
   event: Event;
   registeredAt: string;
 }
 
 export interface Review {
-  id: number;
+  id: string;
   rating: number;
   comment: string;
   user: User;

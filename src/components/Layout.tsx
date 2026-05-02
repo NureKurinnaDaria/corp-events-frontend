@@ -145,7 +145,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const initials = user?.fullName
     ? user.fullName
         .split(" ")
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
@@ -357,14 +357,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b border-slate-200 px-6 h-14 flex items-center">
-          <h1 className="text-slate-800 font-medium text-base">
-            {navItems.find((item) => location.pathname.startsWith(item.to))
-              ?.label || "Corp Events"}
-          </h1>
-        </header>
-
         {/* Content */}
         <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>
