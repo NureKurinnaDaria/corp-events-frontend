@@ -1,16 +1,24 @@
 import api from "./axios";
+import type { Event, EventFormat } from "../types";
+
+export type EventDateFilter = "this_week" | "this_month";
 
 export interface EventFilters {
   search?: string;
-  format?: "ONLINE" | "OFFLINE";
+  format?: EventFormat;
   categoryId?: string;
-  date?: "upcoming" | "this_week" | "this_month";
+  date?: EventDateFilter;
   sortOrder?: "asc" | "desc";
 }
 
 export const eventsApi = {
-  getAll: (filters?: EventFilters) =>
-    api.get("/events", { params: filters }).then((r) => r.data),
+  getAll: async (filters?: EventFilters): Promise<Event[]> => {
+    const response = await api.get<Event[]>("/events", { params: filters });
+    return response.data;
+  },
 
-  getById: (id: string) => api.get(`/events/${id}`).then((r) => r.data),
+  getById: async (id: string): Promise<Event> => {
+    const response = await api.get<Event>(`/events/${id}`);
+    return response.data;
+  },
 };

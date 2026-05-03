@@ -1,11 +1,17 @@
 ﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../api/axios";
+import { authApi } from "../../api/auth";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  AppLogoIcon,
+} from "../../components/common/icons";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login: saveSession } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,12 +25,11 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/auth/login", { email, password });
-      await login(res.data.accessToken);
-      const user = res.data.user;
-      navigate(user.role === "ADMIN" ? "/admin/events" : "/events");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Невірний email або пароль");
+      const data = await authApi.login({ email, password });
+      await saveSession(data.accessToken);
+      navigate(data.user.role === "ADMIN" ? "/admin/events" : "/events");
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Невірний email або пароль"));
     } finally {
       setIsLoading(false);
     }
@@ -36,28 +41,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="3" y="3" width="6" height="6" rx="1" fill="white" />
-                <rect
-                  x="11"
-                  y="3"
-                  width="6"
-                  height="6"
-                  rx="1"
-                  fill="white"
-                  opacity="0.6"
-                />
-                <rect
-                  x="3"
-                  y="11"
-                  width="6"
-                  height="6"
-                  rx="1"
-                  fill="white"
-                  opacity="0.6"
-                />
-                <rect x="11" y="11" width="6" height="6" rx="1" fill="white" />
-              </svg>
+              <AppLogoIcon />
             </div>
             <span className="text-lg font-medium text-slate-800">
               Corp Events
@@ -111,32 +95,7 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
                 >
-                  {showPassword ? (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
             </div>

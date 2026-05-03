@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { User } from "../types";
 import type { ReactNode } from "react";
-import api from "../api/axios";
+import { authApi } from "../api/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -21,25 +21,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      api
-        .get("/auth/me")
-        .then((res) => setUser(res.data))
-        .catch(() => {
-          localStorage.removeItem("token");
-          setToken(null);
-        })
-        .finally(() => setIsLoading(false));
-    } else {
+    if (!token) {
       setIsLoading(false);
+      return;
     }
+
+    authApi
+      .getMe()
+      .then(setUser)
+      .catch(() => {
+        localStorage.removeItem("token");
+        setToken(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [token]);
 
   const login = async (newToken: string) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
-    const res = await api.get("/auth/me");
-    setUser(res.data);
+    const currentUser = await authApi.getMe();
+    setUser(currentUser);
   };
 
   const logout = () => {

@@ -1,11 +1,17 @@
 ﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../api/axios";
+import { authApi } from "../../api/auth";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  AppLogoIcon,
+} from "../../components/common/icons";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login: saveSession } = useAuth();
 
   const [form, setForm] = useState({
     fullName: "",
@@ -32,17 +38,14 @@ export default function RegisterPage() {
       setError("Паролі не співпадають");
       return;
     }
-
     if (form.password.length < 8) {
       setError("Пароль має бути не менше 8 символів");
       return;
     }
-
     if (!/[A-Z]/.test(form.password)) {
       setError("Пароль має містити хоча б одну велику літеру");
       return;
     }
-
     if (!/[0-9]/.test(form.password)) {
       setError("Пароль має містити хоча б одну цифру");
       return;
@@ -51,52 +54,21 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/auth/register", {
+      const data = await authApi.register({
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
         position: form.position,
         password: form.password,
       });
-      await login(res.data.accessToken);
+      await saveSession(data.accessToken);
       navigate("/events");
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Помилка реєстрації. Спробуйте ще раз",
-      );
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Помилка реєстрації. Спробуйте ще раз"));
     } finally {
       setIsLoading(false);
     }
   };
-
-  const EyeIcon = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-
-  const EyeOffIcon = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-8">
@@ -104,28 +76,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="3" y="3" width="6" height="6" rx="1" fill="white" />
-                <rect
-                  x="11"
-                  y="3"
-                  width="6"
-                  height="6"
-                  rx="1"
-                  fill="white"
-                  opacity="0.6"
-                />
-                <rect
-                  x="3"
-                  y="11"
-                  width="6"
-                  height="6"
-                  rx="1"
-                  fill="white"
-                  opacity="0.6"
-                />
-                <rect x="11" y="11" width="6" height="6" rx="1" fill="white" />
-              </svg>
+              <AppLogoIcon />
             </div>
             <span className="text-lg font-medium text-slate-800">
               Corp Events

@@ -1,11 +1,22 @@
 import api from "./axios";
+import type { Registration, MyRegistrationsResponse } from "../types";
 
 export const registrationsApi = {
-  register: (eventId: string) =>
-    api.post(`/registrations/${eventId}`).then((r) => r.data),
+  register: async (eventId: string): Promise<Registration> => {
+    const response = await api.post<Registration>(`/registrations/${eventId}`);
+    return response.data;
+  },
 
-  cancel: (eventId: string) =>
-    api.patch(`/registrations/${eventId}/cancel`).then((r) => r.data),
+  cancel: async (eventId: string): Promise<Registration> => {
+    const response = await api.patch<Registration>(
+      `/registrations/${eventId}/cancel`,
+    );
+    return response.data;
+  },
 
-  getMyRegistrations: () => api.get("/registrations/my").then((r) => r.data),
+  getMyRegistrations: async (): Promise<MyRegistrationsResponse> => {
+    const response =
+      await api.get<MyRegistrationsResponse>("/registrations/my");
+    return response.data;
+  },
 };
