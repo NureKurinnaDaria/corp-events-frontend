@@ -73,12 +73,14 @@ export default function ProfileInfo({ user }: ProfileInfoProps) {
               {user.phone || "Не вказано"}
             </p>
           </div>
-          <div className="border-t border-slate-100 pt-3">
-            <p className="text-xs text-slate-400 mb-0.5">Посада</p>
-            <p className="text-sm text-slate-700">
-              {user.position || "Не вказано"}
-            </p>
-          </div>
+          {user.role !== "ADMIN" && (
+            <div className="border-t border-slate-100 pt-3">
+              <p className="text-xs text-slate-400 mb-0.5">Посада</p>
+              <p className="text-sm text-slate-700">
+                {user.position || "Не вказано"}
+              </p>
+            </div>
+          )}
           <div className="border-t border-slate-100 pt-3">
             <p className="text-xs text-slate-400 mb-0.5">В системі з</p>
             <p className="text-sm text-slate-700">{createdAt}</p>

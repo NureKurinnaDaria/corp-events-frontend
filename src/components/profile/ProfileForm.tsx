@@ -10,6 +10,8 @@ interface ProfileFormProps {
   onSave: (updated: User) => void;
 }
 
+const isAdmin = (user: User) => user.role === "ADMIN";
+
 export default function ProfileForm({ user, onSave }: ProfileFormProps) {
   const [form, setForm] = useState({
     fullName: user.fullName || "",
@@ -65,7 +67,7 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
       const updated = await usersApi.updateProfile({
         fullName: form.fullName || undefined,
         phone: form.phone || undefined,
-        position: form.position || undefined,
+        position: isAdmin(user) ? undefined : form.position || undefined,
         password: form.password || undefined,
       });
       onSave(updated);
@@ -125,19 +127,21 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
         </div>
       </div>
 
-      <div className="mb-5">
-        <label className="block text-xs font-medium text-slate-600 mb-1.5">
-          Посада
-        </label>
-        <input
-          type="text"
-          name="position"
-          value={form.position}
-          onChange={handleChange}
-          placeholder="Frontend Developer"
-          className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-        />
-      </div>
+      {!isAdmin(user) && (
+        <div className="mb-5">
+          <label className="block text-xs font-medium text-slate-600 mb-1.5">
+            Посада
+          </label>
+          <input
+            type="text"
+            name="position"
+            value={form.position}
+            onChange={handleChange}
+            placeholder="Frontend Developer"
+            className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          />
+        </div>
+      )}
 
       <div className="border-t border-slate-100 pt-5 mb-5">
         <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
