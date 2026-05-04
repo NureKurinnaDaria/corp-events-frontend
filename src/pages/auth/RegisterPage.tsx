@@ -8,6 +8,7 @@ import {
   EyeOffIcon,
   AppLogoIcon,
 } from "../../components/common/icons";
+import { validatePhone } from "../../utils/validatePhone";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -33,6 +34,12 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const phoneError = validatePhone(form.phone);
+    if (phoneError) {
+      setError(phoneError);
+      return;
+    }
 
     if (form.password !== form.confirmPassword) {
       setError("Паролі не співпадають");
