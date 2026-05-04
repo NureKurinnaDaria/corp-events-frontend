@@ -1,11 +1,13 @@
 ﻿import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { eventsApi } from "../../api/events";
 import { registrationsApi } from "../../api/registrations";
+import { feedbackApi } from "../../api/feedback";
 import { getCategoryColor } from "../../utils/categoryColor";
 import { formatDate } from "../../utils/formatDate";
-import SuccessModal from "../../components/common/SuccessModal";
 import LoadingState from "../../components/common/LoadingState";
+import FeedbackForm from "../../components/events/FeedbackForm";
+import FeedbackDisplay from "../../components/events/FeedbackDisplay";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import {
   OnlineIcon,
@@ -17,24 +19,50 @@ import {
   ChevronLeftIcon,
 } from "../../components/common/icons";
 import type { Event } from "../../types";
+import type { Feedback } from "../../api/feedback";
 
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const locationEvent =
+    (location.state as { event?: Event } | null)?.event ?? null;
+  const backPath = location.pathname.startsWith("/my-registrations")
+    ? "/my-registrations"
+    : "/events";
+
+  const openFeedback =
+    (location.state as { openFeedback?: boolean } | null)?.openFeedback ??
+    false;
+  const [showFeedback, setShowFeedback] = useState(openFeedback);
 
   const [event, setEvent] = useState<Event | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [myFeedback, setMyFeedback] = useState<Feedback | null>(null);
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
 
-    Promise.all([eventsApi.getById(id), registrationsApi.getMyRegistrations()])
-      .then(([eventData, registrationsData]) => {
+    const eventPromise = locationEvent
+      ? Promise.resolve(locationEvent)
+      : eventsApi.getById(id);
+
+    Promise.all([
+      eventPromise,
+      registrationsApi.getMyRegistrations(),
+      feedbackApi.getMy(),
+    ])
+      .then(([eventData, registrationsData, feedbacks]) => {
         setEvent(eventData);
+        setIsCompleted(eventData.status === "COMPLETED");
+
         const allRegistrations = [
           ...registrationsData.upcoming,
           ...registrationsData.completed,
@@ -45,6 +73,9 @@ export default function EventDetailPage() {
             registration.status === "REGISTERED",
         );
         setIsRegistered(!!found);
+
+        const existing = feedbacks.find((f) => f.eventId === id);
+        if (existing) setMyFeedback(existing);
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -56,7 +87,6 @@ export default function EventDetailPage() {
     try {
       await registrationsApi.register(id);
       setIsRegistered(true);
-      setSuccessMessage(`Ви успішно зареєстровані на подію: ${event.title}`);
       const updated = await eventsApi.getById(id);
       setEvent(updated);
     } catch (error: unknown) {
@@ -71,13 +101,34 @@ export default function EventDetailPage() {
     setIsSubmitting(true);
     try {
       await registrationsApi.cancel(id);
-      setIsRegistered(false);
-      const updated = await eventsApi.getById(id);
-      setEvent(updated);
+      if (backPath === "/my-registrations") {
+        navigate("/my-registrations");
+      } else {
+        setIsRegistered(false);
+        const updated = await eventsApi.getById(id);
+        setEvent(updated);
+      }
     } catch (error: unknown) {
       alert(getApiErrorMessage(error, "Помилка скасування"));
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleFeedbackSubmit = async (rating: number, comment: string) => {
+    if (!id) return;
+    setIsSendingFeedback(true);
+    try {
+      const created = await feedbackApi.create({
+        eventId: id,
+        rating,
+        comment,
+      });
+      setMyFeedback(created);
+    } catch (error: unknown) {
+      alert(getApiErrorMessage(error, "Помилка надсилання відгуку"));
+    } finally {
+      setIsSendingFeedback(false);
     }
   };
 
@@ -92,20 +143,20 @@ export default function EventDetailPage() {
 
   return (
     <div>
-      {/* Назад */}
       <button
-        onClick={() => navigate("/events")}
+        onClick={() => navigate(backPath)}
         className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition mb-4"
       >
         <ChevronLeftIcon />
-        Назад до подій
+        {backPath === "/my-registrations"
+          ? "Назад до реєстрацій"
+          : "Назад до подій"}
       </button>
 
-      {/* Картка */}
+      {/* Картка події */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="h-1.5 w-full" style={{ background: color.bar }} />
         <div className="p-6">
-          {/* Категорія та формат */}
           <div className="flex items-center gap-3 mb-4">
             <span
               className="text-xs font-medium px-2.5 py-1 rounded-full"
@@ -124,7 +175,6 @@ export default function EventDetailPage() {
             </span>
           </div>
 
-          {/* Назва та опис */}
           <h1 className="text-xl font-medium text-slate-800 mb-2">
             {event.title}
           </h1>
@@ -132,7 +182,6 @@ export default function EventDetailPage() {
             {event.description}
           </p>
 
-          {/* Дати */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div className="rounded-lg p-3" style={{ background: "#E6F1FB" }}>
               <p className="text-xs text-slate-500 mb-1">Початок</p>
@@ -150,7 +199,6 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          {/* Адреса для OFFLINE */}
           {event.format === "OFFLINE" && event.location && (
             <div className="border-t border-slate-100 pt-5 mb-5">
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
@@ -163,7 +211,6 @@ export default function EventDetailPage() {
             </div>
           )}
 
-          {/* Посилання для ONLINE — тільки зареєстрованим */}
           {event.format === "ONLINE" && event.onlineUrl && isRegistered && (
             <div className="border-t border-slate-100 pt-5 mb-5">
               <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
@@ -181,17 +228,18 @@ export default function EventDetailPage() {
             </div>
           )}
 
-          {/* Учасники */}
           <div className="border-t border-slate-100 pt-5 mb-6">
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
               Учасники
             </p>
             <div className="flex items-center gap-2 text-sm text-slate-700 mb-2">
               <UsersIcon />
-              {max
+              {max != null && registered != null
                 ? `${registered} / ${max} зареєстровано`
-                : `${registered} зареєстровано`}
-              {free !== null && (
+                : registered != null
+                  ? `${registered} зареєстровано`
+                  : "Дані недоступні"}
+              {free !== null && free !== undefined && (
                 <span className="text-slate-400">· {free} місць вільно</span>
               )}
             </div>
@@ -208,15 +256,18 @@ export default function EventDetailPage() {
             )}
           </div>
 
-          {/* Кнопки */}
           <div className="flex gap-3">
             <button
-              onClick={() => navigate("/events")}
+              onClick={() => navigate(backPath)}
               className="px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition"
             >
               Назад
             </button>
-            {isRegistered ? (
+            {isCompleted ? (
+              <span className="flex-1 py-2.5 text-sm text-slate-400 text-center">
+                Подія завершена
+              </span>
+            ) : isRegistered ? (
               <button
                 onClick={handleCancel}
                 disabled={isSubmitting}
@@ -241,11 +292,39 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      {successMessage && (
-        <SuccessModal
-          message={successMessage}
-          onClose={() => setSuccessMessage(null)}
-        />
+      {/* Блок відгуку */}
+      {isCompleted && (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
+          <div className="h-1.5 w-full" style={{ background: color.bar }} />
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                Відгук про подію
+              </p>
+              {!myFeedback && !showFeedback && (
+                <button
+                  onClick={() => setShowFeedback(true)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Залишити відгук
+                </button>
+              )}
+            </div>
+
+            {myFeedback ? (
+              <FeedbackDisplay feedback={myFeedback} />
+            ) : showFeedback ? (
+              <FeedbackForm
+                onSubmit={handleFeedbackSubmit}
+                isLoading={isSendingFeedback}
+              />
+            ) : (
+              <p className="text-sm text-slate-400">
+                Ви ще не залишили відгук про цю подію
+              </p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

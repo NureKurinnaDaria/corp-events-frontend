@@ -52,6 +52,16 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/my-registrations/:id"
+        element={
+          <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
+            <Layout>
+              <EventDetailPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
       {/* Admin */}
       <Route
