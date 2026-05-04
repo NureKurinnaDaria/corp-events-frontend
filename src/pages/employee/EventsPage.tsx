@@ -9,7 +9,7 @@ import EventRow from "../../components/events/EventRow";
 import SuccessModal from "../../components/common/SuccessModal";
 import LoadingState from "../../components/common/LoadingState";
 import { GridIcon, ListIcon, SearchIcon } from "../../components/common/icons";
-import type { Event, Category } from "../../types";
+import type { Event, Category, MyRegistrationsResponse } from "../../types";
 import type { EventFilters } from "../../api/events";
 
 type ViewMode = "grid" | "list";
@@ -19,6 +19,8 @@ type DateFilter = "" | NonNullable<EventFilters["date"]>;
 
 export default function EventsPage() {
   const navigate = useNavigate();
+  const [myRegistrations, setMyRegistrations] =
+    useState<MyRegistrationsResponse>({ upcoming: [], completed: [] });
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +35,10 @@ export default function EventsPage() {
 
   useEffect(() => {
     categoriesApi.getAll().then(setCategories).catch(console.error);
+    registrationsApi
+      .getMyRegistrations()
+      .then(setMyRegistrations)
+      .catch(console.error);
   }, []);
 
   const loadEvents = () => {
@@ -50,9 +56,14 @@ export default function EventsPage() {
       .finally(() => setIsLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadEvents();
   }, [search, format, categoryId, date, sort]);
+
+  const isRegistered = (eventId: string) =>
+    myRegistrations.upcoming.some((r) => r.event.id === eventId);
 
   const handleView = (id: string) => navigate(`/events/${id}`);
 
@@ -60,9 +71,22 @@ export default function EventsPage() {
     try {
       await registrationsApi.register(id);
       setSuccessEvent(title);
+      const updated = await registrationsApi.getMyRegistrations();
+      setMyRegistrations(updated);
       loadEvents();
     } catch (error: unknown) {
       alert(getApiErrorMessage(error, "Помилка реєстрації"));
+    }
+  };
+
+  const handleCancel = async (id: string) => {
+    try {
+      await registrationsApi.cancel(id);
+      const updated = await registrationsApi.getMyRegistrations();
+      setMyRegistrations(updated);
+      loadEvents();
+    } catch (error: unknown) {
+      alert(getApiErrorMessage(error, "Помилка скасування"));
     }
   };
 
@@ -161,8 +185,10 @@ export default function EventsPage() {
             <EventCard
               key={e.id}
               event={e}
+              isRegistered={isRegistered(e.id)}
               onView={handleView}
               onRegister={handleRegister}
+              onCancel={handleCancel}
             />
           ))}
         </div>
@@ -172,8 +198,10 @@ export default function EventsPage() {
             <EventRow
               key={e.id}
               event={e}
+              isRegistered={isRegistered(e.id)}
               onView={handleView}
               onRegister={handleRegister}
+              onCancel={handleCancel}
             />
           ))}
         </div>

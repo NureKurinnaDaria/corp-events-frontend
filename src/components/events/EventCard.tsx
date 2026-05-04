@@ -10,14 +10,18 @@ import type { Event } from "../../types";
 
 interface EventCardProps {
   event: Event;
+  isRegistered?: boolean;
   onView: (id: string) => void;
   onRegister: (id: string, title: string) => void;
+  onCancel: (id: string) => void;
 }
 
 export default function EventCard({
   event,
+  isRegistered,
   onView,
   onRegister,
+  onCancel,
 }: EventCardProps) {
   const color = getCategoryColor(event.category?.name || "default");
   const max = event.maxParticipants;
@@ -109,7 +113,18 @@ export default function EventCard({
           >
             Деталі
           </button>
-          {!isFull && (
+          {isRegistered ? (
+            <button
+              onClick={() => onCancel(event.id)}
+              className="flex-1 py-2 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+            >
+              Скасувати участь
+            </button>
+          ) : isFull ? (
+            <span className="flex-1 py-2 text-xs text-slate-400 text-center">
+              Місць немає
+            </span>
+          ) : (
             <button
               onClick={() => onRegister(event.id, event.title)}
               className="flex-1 py-2 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
@@ -117,12 +132,12 @@ export default function EventCard({
               Зареєструватись
             </button>
           )}
-          {isFull && (
-            <span className="flex-1 py-2 text-xs text-slate-400 text-center">
-              Місць немає
-            </span>
-          )}
         </div>
+        {isFull && (
+          <span className="flex-1 py-2 text-xs text-slate-400 text-center">
+            Місць немає
+          </span>
+        )}
       </div>
     </div>
   );

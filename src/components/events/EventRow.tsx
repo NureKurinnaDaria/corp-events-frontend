@@ -10,11 +10,19 @@ import type { Event } from "../../types";
 
 interface EventRowProps {
   event: Event;
+  isRegistered?: boolean;
   onView: (id: string) => void;
   onRegister: (id: string, title: string) => void;
+  onCancel: (id: string) => void;
 }
 
-export default function EventRow({ event, onView, onRegister }: EventRowProps) {
+export default function EventRow({
+  event,
+  isRegistered,
+  onView,
+  onRegister,
+  onCancel,
+}: EventRowProps) {
   const color = getCategoryColor(event.category?.name || "default");
   const isFull =
     event.maxParticipants !== null &&
@@ -66,7 +74,18 @@ export default function EventRow({ event, onView, onRegister }: EventRowProps) {
         >
           Деталі
         </button>
-        {!isFull && (
+        {isRegistered ? (
+          <button
+            onClick={() => onCancel(event.id)}
+            className="px-3 py-1.5 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+          >
+            Скасувати участь
+          </button>
+        ) : isFull ? (
+          <span className="px-3 py-1.5 text-xs text-slate-400">
+            Місць немає
+          </span>
+        ) : (
           <button
             onClick={() => onRegister(event.id, event.title)}
             className="px-3 py-1.5 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
@@ -74,12 +93,10 @@ export default function EventRow({ event, onView, onRegister }: EventRowProps) {
             Зареєструватись
           </button>
         )}
-        {isFull && (
-          <span className="px-3 py-1.5 text-xs text-slate-400">
-            Місць немає
-          </span>
-        )}
       </div>
+      {isFull && (
+        <span className="px-3 py-1.5 text-xs text-slate-400">Місць немає</span>
+      )}
     </div>
   );
 }
