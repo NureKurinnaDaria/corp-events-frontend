@@ -9,6 +9,7 @@ import LoadingState from "../../components/common/LoadingState";
 import FeedbackForm from "../../components/events/FeedbackForm";
 import FeedbackDisplay from "../../components/events/FeedbackDisplay";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import FeedbackList from "../../components/events/FeedbackList";
 import {
   OnlineIcon,
   OfflineIcon,
@@ -44,6 +45,7 @@ export default function EventDetailPage() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [myFeedback, setMyFeedback] = useState<Feedback | null>(null);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+  const [eventFeedbacks, setEventFeedbacks] = useState<Feedback[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -58,8 +60,9 @@ export default function EventDetailPage() {
       eventPromise,
       registrationsApi.getMyRegistrations(),
       feedbackApi.getMy(),
+      feedbackApi.getByEvent(id),
     ])
-      .then(([eventData, registrationsData, feedbacks]) => {
+      .then(([eventData, registrationsData, feedbacks, eventFeedbacksData]) => {
         setEvent(eventData);
         setIsCompleted(eventData.status === "COMPLETED");
 
@@ -76,6 +79,7 @@ export default function EventDetailPage() {
 
         const existing = feedbacks.find((f) => f.eventId === id);
         if (existing) setMyFeedback(existing);
+        setEventFeedbacks(eventFeedbacksData as Feedback[]);
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -323,6 +327,19 @@ export default function EventDetailPage() {
                 Ви ще не залишили відгук про цю подію
               </p>
             )}
+          </div>
+        </div>
+      )}
+      {isCompleted && eventFeedbacks.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
+          <div className="h-1.5 w-full" style={{ background: color.bar }} />
+          <div className="p-6">
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
+              Відгуки учасників
+            </p>
+            <FeedbackList
+              feedbacks={eventFeedbacks.filter((f) => f.id !== myFeedback?.id)}
+            />
           </div>
         </div>
       )}

@@ -12,6 +12,12 @@ export interface Feedback {
   rating: number;
   comment: string;
   createdAt: string;
+  user?: {
+    id: string;
+    fullName: string | null;
+    email: string;
+    position: string | null;
+  };
 }
 
 export const feedbackApi = {

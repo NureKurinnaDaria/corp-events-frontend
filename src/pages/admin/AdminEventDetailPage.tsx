@@ -8,6 +8,9 @@ import { getCategoryColor } from "../../utils/categoryColor";
 import { formatDate } from "../../utils/formatDate";
 import LoadingState from "../../components/common/LoadingState";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import { feedbackApi } from "../../api/feedback";
+import type { Feedback } from "../../api/feedback";
+import FeedbackList from "../../components/events/FeedbackList";
 import {
   ChevronLeftIcon,
   CalendarIcon,
@@ -65,6 +68,7 @@ export default function AdminEventDetailPage() {
   const [participantToCancel, setParticipantToCancel] = useState<string | null>(
     null,
   );
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -72,10 +76,12 @@ export default function AdminEventDetailPage() {
     Promise.all([
       eventsApi.getById(id),
       registrationsApi.getEventParticipants(id),
+      feedbackApi.getByEvent(id),
     ])
-      .then(([eventData, participantsData]) => {
+      .then(([eventData, participantsData, feedbacksData]) => {
         setEvent(eventData);
         setParticipants(participantsData);
+        setFeedbacks(feedbacksData as Feedback[]);
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -345,6 +351,21 @@ export default function AdminEventDetailPage() {
             </div>
           )}
         </div>
+        {event.status === "COMPLETED" && (
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <span className="text-sm font-medium text-slate-800">
+                Відгуки учасників
+              </span>
+              <span className="text-xs text-slate-400">
+                {feedbacks.length} відгуків
+              </span>
+            </div>
+            <div className="p-5">
+              <FeedbackList feedbacks={feedbacks} />
+            </div>
+          </div>
+        )}
       </div>
       {showCancelConfirm && (
         <ConfirmModal
