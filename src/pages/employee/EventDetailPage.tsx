@@ -10,6 +10,9 @@ import FeedbackForm from "../../components/events/FeedbackForm";
 import FeedbackDisplay from "../../components/events/FeedbackDisplay";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import FeedbackList from "../../components/events/FeedbackList";
+import { reportsApi } from "../../api/reports";
+import type { Report } from "../../api/reports";
+import EventReport from "../../components/events/EventReport";
 import {
   OnlineIcon,
   OfflineIcon,
@@ -46,6 +49,7 @@ export default function EventDetailPage() {
   const [myFeedback, setMyFeedback] = useState<Feedback | null>(null);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [eventFeedbacks, setEventFeedbacks] = useState<Feedback[]>([]);
+  const [report, setReport] = useState<Report | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -61,26 +65,36 @@ export default function EventDetailPage() {
       registrationsApi.getMyRegistrations(),
       feedbackApi.getMy(),
       feedbackApi.getByEvent(id),
+      reportsApi.getByEvent(id),
     ])
-      .then(([eventData, registrationsData, feedbacks, eventFeedbacksData]) => {
-        setEvent(eventData);
-        setIsCompleted(eventData.status === "COMPLETED");
+      .then(
+        ([
+          eventData,
+          registrationsData,
+          feedbacks,
+          eventFeedbacksData,
+          reportData,
+        ]) => {
+          setEvent(eventData);
+          setIsCompleted(eventData.status === "COMPLETED");
+          setEventFeedbacks(eventFeedbacksData as Feedback[]);
+          setReport(reportData);
 
-        const allRegistrations = [
-          ...registrationsData.upcoming,
-          ...registrationsData.completed,
-        ];
-        const found = allRegistrations.find(
-          (registration) =>
-            registration.event.id === id &&
-            registration.status === "REGISTERED",
-        );
-        setIsRegistered(!!found);
+          const allRegistrations = [
+            ...registrationsData.upcoming,
+            ...registrationsData.completed,
+          ];
+          const found = allRegistrations.find(
+            (registration) =>
+              registration.event.id === id &&
+              registration.status === "REGISTERED",
+          );
+          setIsRegistered(!!found);
 
-        const existing = feedbacks.find((f) => f.eventId === id);
-        if (existing) setMyFeedback(existing);
-        setEventFeedbacks(eventFeedbacksData as Feedback[]);
-      })
+          const existing = feedbacks.find((f) => f.eventId === id);
+          if (existing) setMyFeedback(existing);
+        },
+      )
       .catch(console.error)
       .finally(() => setIsLoading(false));
   }, [id]);
@@ -327,6 +341,28 @@ export default function EventDetailPage() {
                 Ви ще не залишили відгук про цю подію
               </p>
             )}
+          </div>
+        </div>
+      )}
+      {isCompleted && (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <span className="text-sm font-medium text-slate-800">
+              Звіт про подію
+            </span>
+            {report && (
+              <span className="text-xs text-slate-400">
+                {new Date(report.createdAt).toLocaleDateString("uk-UA")}
+              </span>
+            )}
+          </div>
+          <div className="p-5">
+            <EventReport
+              eventId={id!}
+              report={report}
+              isAdmin={false}
+              onReportChange={setReport}
+            />
           </div>
         </div>
       )}

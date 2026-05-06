@@ -11,6 +11,9 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import { feedbackApi } from "../../api/feedback";
 import type { Feedback } from "../../api/feedback";
 import FeedbackList from "../../components/events/FeedbackList";
+import { reportsApi } from "../../api/reports";
+import type { Report } from "../../api/reports";
+import EventReport from "../../components/events/EventReport";
 import {
   ChevronLeftIcon,
   CalendarIcon,
@@ -69,7 +72,7 @@ export default function AdminEventDetailPage() {
     null,
   );
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-
+  const [report, setReport] = useState<Report | null>(null);
   useEffect(() => {
     if (!id) return;
     setIsLoading(true);
@@ -77,11 +80,13 @@ export default function AdminEventDetailPage() {
       eventsApi.getById(id),
       registrationsApi.getEventParticipants(id),
       feedbackApi.getByEvent(id),
+      reportsApi.getByEvent(id),
     ])
-      .then(([eventData, participantsData, feedbacksData]) => {
+      .then(([eventData, participantsData, feedbacksData, reportData]) => {
         setEvent(eventData);
         setParticipants(participantsData);
         setFeedbacks(feedbacksData as Feedback[]);
+        setReport(reportData);
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
@@ -363,6 +368,28 @@ export default function AdminEventDetailPage() {
             </div>
             <div className="p-5">
               <FeedbackList feedbacks={feedbacks} />
+            </div>
+          </div>
+        )}
+        {event.status === "COMPLETED" && (
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <span className="text-sm font-medium text-slate-800">
+                Звіт про подію
+              </span>
+              {report && (
+                <span className="text-xs text-slate-400">
+                  {new Date(report.createdAt).toLocaleDateString("uk-UA")}
+                </span>
+              )}
+            </div>
+            <div className="p-5">
+              <EventReport
+                eventId={id!}
+                report={report}
+                isAdmin={true}
+                onReportChange={setReport}
+              />
             </div>
           </div>
         )}
