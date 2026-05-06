@@ -1,5 +1,11 @@
 import api from "./axios";
-import type { Registration, MyRegistrationsResponse } from "../types";
+import type { Registration, MyRegistrationsResponse, User } from "../types";
+
+export interface EventParticipant {
+  registrationId: string;
+  user: User;
+  registeredAt: string;
+}
 
 export const registrationsApi = {
   register: async (eventId: string): Promise<Registration> => {
@@ -18,5 +24,18 @@ export const registrationsApi = {
     const response =
       await api.get<MyRegistrationsResponse>("/registrations/my");
     return response.data;
+  },
+
+  getEventParticipants: async (
+    eventId: string,
+  ): Promise<EventParticipant[]> => {
+    const response = await api.get<EventParticipant[]>(
+      `/registrations/event/${eventId}`,
+    );
+    return response.data;
+  },
+
+  cancelByRegistrationId: async (registrationId: string): Promise<void> => {
+    await api.delete(`/registrations/${registrationId}/admin-cancel`);
   },
 };
