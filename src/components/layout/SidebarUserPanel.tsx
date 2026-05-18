@@ -1,4 +1,5 @@
 import { ChevronRightIcon, LogoutIcon } from "../common/icons";
+import NotificationsBell from "./NotificationsBell";
 import type { User } from "../../types";
 
 interface SidebarUserPanelProps {
@@ -37,6 +38,7 @@ export default function SidebarUserPanel({
       <div
         className={`flex items-center gap-3 px-2 ${collapsed ? "justify-center" : ""}`}
       >
+        {/* Аватар */}
         <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
           {initials}
         </div>
@@ -53,24 +55,30 @@ export default function SidebarUserPanel({
         )}
 
         {!collapsed && (
-          <button
-            onClick={onLogout}
-            className="text-white/40 hover:text-white transition flex-shrink-0"
-            title="Вийти"
-          >
-            <LogoutIcon />
-          </button>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <NotificationsBell />
+            <button
+              onClick={onLogout}
+              className="text-white/40 hover:text-white transition"
+              title="Вийти"
+            >
+              <LogoutIcon />
+            </button>
+          </div>
         )}
       </div>
 
       {collapsed && (
-        <button
-          onClick={onLogout}
-          className="w-full flex justify-center py-2 text-white/40 hover:text-red-400 transition"
-          title="Вийти"
-        >
-          <LogoutIcon />
-        </button>
+        <div className="flex flex-col items-center gap-1">
+          <NotificationsBell />
+          <button
+            onClick={onLogout}
+            className="w-full flex justify-center py-2 text-white/40 hover:text-red-400 transition"
+            title="Вийти"
+          >
+            <LogoutIcon />
+          </button>
+        </div>
       )}
     </div>
   );
