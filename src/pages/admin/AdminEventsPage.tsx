@@ -24,7 +24,15 @@ const STATUS_LABELS: Record<EventStatus, string> = {
   CANCELED: "Canceled",
 };
 
-export default function AdminEventsPage() {
+interface AdminEventsPageProps {
+  initialStatus?: StatusFilter;
+  archiveMode?: boolean;
+}
+
+export default function AdminEventsPage({
+  initialStatus = "",
+  archiveMode = false,
+}: AdminEventsPageProps) {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -35,7 +43,7 @@ export default function AdminEventsPage() {
   const [format, setFormat] = useState<FormatFilter>("");
   const [categoryId, setCategoryId] = useState("");
   const [date, setDate] = useState<DateFilter>("");
-  const [status, setStatus] = useState<StatusFilter>("");
+  const [status, setStatus] = useState<StatusFilter>(initialStatus);
   const [sort, setSort] = useState<SortMode>("asc");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
@@ -86,32 +94,40 @@ export default function AdminEventsPage() {
     <div>
       <div className="mb-5 flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-medium text-slate-800 mb-1">Події</h1>
+          <h1 className="text-xl font-medium text-slate-800 mb-1">
+            {archiveMode ? "Архів подій" : "Події"}
+          </h1>
           <p className="text-sm text-slate-500">
-            Керування корпоративними подіями
+            {archiveMode
+              ? "Завершені корпоративні заходи"
+              : "Керування корпоративними подіями"}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
-            Видалення доступне лише для скасованих подій (
-            <span className="font-medium">Canceled</span>)
-          </p>
+          {!archiveMode && (
+            <p className="text-xs text-slate-400 mt-1">
+              Видалення доступне лише для скасованих подій (
+              <span className="font-medium">Canceled</span>)
+            </p>
+          )}
         </div>
-        <button
-          onClick={() => navigate("/admin/events/create")}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
+        {!archiveMode && (
+          <button
+            onClick={() => navigate("/admin/events/create")}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition"
           >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Створити подію
-        </button>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Створити подію
+          </button>
+        )}
       </div>
 
       {/* Filter row */}
