@@ -38,4 +38,26 @@ export const reportsApi = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/reports/${id}`);
   },
+
+  addPhoto: async (id: string, url: string): Promise<Report> => {
+    const response = await api.post<Report>(`/reports/${id}/photos`, { url });
+    return response.data;
+  },
+
+  deletePhoto: async (photoId: string): Promise<void> => {
+    await api.delete(`/reports/photos/${photoId}`);
+  },
+
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await api.post<{ url: string }>(
+      "/upload/image",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+    return response.data.url;
+  },
 };
