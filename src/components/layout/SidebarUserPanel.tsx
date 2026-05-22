@@ -51,10 +51,18 @@ export default function SidebarUserPanel({
         className={`flex items-center gap-3 px-2 ${collapsed ? "justify-center" : ""}`}
       >
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 overflow-hidden"
           style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)" }}
         >
-          {initials}
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt="avatar"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            initials
+          )}
         </div>
 
         {!collapsed && (

@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { usersApi } from "../api/users";
+import { useAuth } from "../context/AuthContext";
 import LoadingState from "../components/common/LoadingState";
 import ProfileInfo from "../components/profile/ProfileInfo";
 import ProfileForm from "../components/profile/ProfileForm";
@@ -8,6 +9,7 @@ import type { User } from "../types";
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { updateUser } = useAuth();
 
   useEffect(() => {
     setIsLoading(true);
@@ -17,6 +19,11 @@ export default function ProfilePage() {
       .catch(console.error)
       .finally(() => setIsLoading(false));
   }, []);
+
+  const handleSave = (updated: User) => {
+    setUser(updated);
+    updateUser(updated); // оновлює юзера в сайдбарі
+  };
 
   if (isLoading) return <LoadingState />;
   if (!user) return <LoadingState text="Профіль не знайдено" />;
@@ -37,8 +44,8 @@ export default function ProfilePage() {
         </p>
       </div>
       <div className="grid gap-4" style={{ gridTemplateColumns: "260px 1fr" }}>
-        <ProfileInfo user={user} onAvatarUpdate={setUser} />
-        <ProfileForm user={user} onSave={setUser} />
+        <ProfileInfo user={user} onAvatarUpdate={handleSave} />
+        <ProfileForm user={user} onSave={handleSave} />
       </div>
     </div>
   );
