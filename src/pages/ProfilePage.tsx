@@ -7,22 +7,32 @@ import ProfileForm from "../components/profile/ProfileForm";
 import type { User } from "../types";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { updateUser } = useAuth();
+  const { user: authUser, updateUser } = useAuth();
+  const [user, setUser] = useState<User | null>(authUser);
+  const [isLoading, setIsLoading] = useState(!authUser);
 
   useEffect(() => {
+    let cancelled = false;
     setIsLoading(true);
     usersApi
       .getProfile()
-      .then(setUser)
+      .then((fresh) => {
+        if (cancelled) return;
+        setUser(fresh);
+        updateUser(fresh);
+      })
       .catch(console.error)
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSave = (updated: User) => {
     setUser(updated);
-    updateUser(updated); // оновлює юзера в сайдбарі
+    updateUser(updated);
   };
 
   if (isLoading) return <LoadingState />;

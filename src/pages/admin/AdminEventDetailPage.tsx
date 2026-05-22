@@ -434,13 +434,28 @@ export default function AdminEventDetailPage() {
                     }}
                   >
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 overflow-hidden"
                       style={{
-                        background: avatarColor.bg,
+                        background: p.user.avatarUrl
+                          ? "transparent"
+                          : avatarColor.bg,
                         color: avatarColor.color,
                       }}
                     >
-                      {initials}
+                      {p.user.avatarUrl ? (
+                        <img
+                          src={p.user.avatarUrl}
+                          alt={p.user.fullName || p.user.email}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      ) : (
+                        initials
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-800 truncate">

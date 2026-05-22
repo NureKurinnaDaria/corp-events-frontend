@@ -17,6 +17,7 @@ export interface Feedback {
     fullName: string | null;
     email: string;
     position: string | null;
+    avatarUrl: string | null;
   };
 }
 

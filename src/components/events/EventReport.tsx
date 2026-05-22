@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import PhotoLightbox from "../common/PhotoLightbox";
+import ConfirmModal from "../common/ConfirmModal";
 import { reportsApi } from "../../api/reports";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import type { Report } from "../../api/reports";
@@ -30,6 +31,7 @@ export default function EventReport({
   const [localPhotos, setLocalPhotos] = useState<LocalPhoto[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -312,13 +314,28 @@ export default function EventReport({
               Редагувати
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => setShowConfirmDelete(true)}
               disabled={isLoading}
               className="px-4 py-2 text-xs text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 rounded-xl transition disabled:opacity-50"
             >
               Видалити
             </button>
           </div>
+        )}
+
+        {showConfirmDelete && (
+          <ConfirmModal
+            title="Видалити звіт?"
+            message="Звіт та всі фото до нього будуть видалені назавжди. Цю дію неможливо скасувати."
+            confirmLabel="Видалити"
+            cancelLabel="Скасувати"
+            variant="danger"
+            onConfirm={() => {
+              setShowConfirmDelete(false);
+              handleDelete();
+            }}
+            onCancel={() => setShowConfirmDelete(false)}
+          />
         )}
 
         {error && <p className="text-xs text-red-500">{error}</p>}

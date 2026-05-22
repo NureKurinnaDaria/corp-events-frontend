@@ -62,7 +62,9 @@ export default function EventRow(props: EventRowProps) {
         boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
         borderRadius: "16px",
         opacity: isCompleted ? 0.7 : 1,
+        cursor: "pointer",
       }}
+      onClick={() => onView(event.id)}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.boxShadow =
           "0 8px 28px rgba(59,130,246,0.12)";
@@ -137,7 +139,10 @@ export default function EventRow(props: EventRowProps) {
       {props.isAdmin ? (
         <div className="flex gap-2 flex-shrink-0">
           <button
-            onClick={() => onView(event.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(event.id);
+            }}
             className="px-3 py-1.5 text-xs rounded-xl font-medium transition"
             style={{
               color: "#64748b",
@@ -155,7 +160,10 @@ export default function EventRow(props: EventRowProps) {
           </button>
           {event.status !== "CANCELED" && event.status !== "COMPLETED" && (
             <button
-              onClick={() => navigate(`/admin/events/${event.id}/edit`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/events/${event.id}/edit`);
+              }}
               className="px-3 py-1.5 text-xs rounded-xl font-medium transition"
               style={{
                 color: "#1d4ed8",
@@ -174,7 +182,10 @@ export default function EventRow(props: EventRowProps) {
           )}
           {event.status === "CANCELED" && (
             <button
-              onClick={() => props.onDelete(event.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onDelete(event.id);
+              }}
               className="px-3 py-1.5 text-xs rounded-xl font-medium transition"
               style={{
                 color: "#e11d48",
@@ -195,7 +206,10 @@ export default function EventRow(props: EventRowProps) {
       ) : (
         <div className="flex gap-2 flex-shrink-0">
           <button
-            onClick={() => onView(event.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(event.id);
+            }}
             className="px-3 py-1.5 text-xs rounded-xl font-medium transition"
             style={{
               color: "#64748b",
@@ -213,7 +227,10 @@ export default function EventRow(props: EventRowProps) {
           </button>
           {props.isRegistered ? (
             <button
-              onClick={() => props.onCancel(event.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onCancel(event.id);
+              }}
               className="px-3 py-1.5 text-xs rounded-xl font-medium transition"
               style={{
                 color: "#e11d48",
@@ -235,7 +252,10 @@ export default function EventRow(props: EventRowProps) {
             </span>
           ) : (
             <button
-              onClick={() => props.onRegister(event.id, event.title)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onRegister(event.id, event.title);
+              }}
               className="px-3 py-1.5 text-xs rounded-xl font-semibold text-white transition"
               style={{
                 background: "linear-gradient(135deg, #2563eb, #1d4ed8)",

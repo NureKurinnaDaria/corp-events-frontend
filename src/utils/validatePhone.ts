@@ -3,12 +3,8 @@ export function validatePhone(phone: string): string | null {
 
   const cleaned = phone.replace(/[\s\-().]/g, "");
 
-  if (!/^\+\d{10,15}$/.test(cleaned)) {
-    return "Невірний формат телефону. Приклад: +380669879099";
-  }
-
-  if (/^\+380/.test(cleaned) && cleaned.length !== 13) {
-    return "Український номер має містити 12 цифр після +";
+  if (!/^\+380\d{9}$/.test(cleaned)) {
+    return "Телефон має бути у форматі +380XXXXXXXXX (9 цифр після +380)";
   }
 
   return null;

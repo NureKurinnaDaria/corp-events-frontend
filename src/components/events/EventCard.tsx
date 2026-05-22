@@ -64,7 +64,9 @@ export default function EventCard(props: EventCardProps) {
           "0 4px 24px rgba(59,130,246,0.07), 0 1px 4px rgba(0,0,0,0.04)",
         opacity: props.isAdmin && isCompleted ? 0.65 : 1,
         transition: "box-shadow 0.25s, transform 0.25s",
+        cursor: "pointer",
       }}
+      onClick={() => onView(event.id)}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLDivElement;
         el.style.boxShadow = `0 12px 40px rgba(59,130,246,0.16), 0 2px 8px rgba(0,0,0,0.06)`;
@@ -206,7 +208,10 @@ export default function EventCard(props: EventCardProps) {
           style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
         >
           <button
-            onClick={() => onView(event.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(event.id);
+            }}
             className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
             style={{
               color: "#64748b",
@@ -229,7 +234,10 @@ export default function EventCard(props: EventCardProps) {
             <>
               {event.status !== "CANCELED" && event.status !== "COMPLETED" && (
                 <button
-                  onClick={() => navigate(`/admin/events/${event.id}/edit`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/admin/events/${event.id}/edit`);
+                  }}
                   className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
                   style={{
                     color: "#1d4ed8",
@@ -248,7 +256,10 @@ export default function EventCard(props: EventCardProps) {
               )}
               {event.status === "CANCELED" && (
                 <button
-                  onClick={() => props.onDelete(event.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.onDelete(event.id);
+                  }}
                   className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
                   style={{
                     color: "#e11d48",
@@ -268,7 +279,10 @@ export default function EventCard(props: EventCardProps) {
             </>
           ) : props.isRegistered ? (
             <button
-              onClick={() => props.onCancel(event.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onCancel(event.id);
+              }}
               className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
               style={{
                 color: "#e11d48",
@@ -290,7 +304,10 @@ export default function EventCard(props: EventCardProps) {
             </span>
           ) : (
             <button
-              onClick={() => props.onRegister(event.id, event.title)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onRegister(event.id, event.title);
+              }}
               className="flex-1 py-2.5 text-xs rounded-xl font-semibold transition-all text-white"
               style={{
                 background: "linear-gradient(135deg, #2563eb, #1d4ed8)",

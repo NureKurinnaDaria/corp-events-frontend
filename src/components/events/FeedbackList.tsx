@@ -81,10 +81,26 @@ export default function FeedbackList({ feedbacks }: FeedbackListProps) {
           return (
             <div key={feedback.id} className="flex gap-3">
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
-                style={{ background: avatarColor.bg, color: avatarColor.color }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 overflow-hidden"
+                style={{
+                  background: user?.avatarUrl ? "transparent" : avatarColor.bg,
+                  color: avatarColor.color,
+                }}
               >
-                {initials}
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.fullName || user.email}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                ) : (
+                  initials
+                )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">

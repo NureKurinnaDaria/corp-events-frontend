@@ -7,6 +7,8 @@ import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import EventCard from "../../components/events/EventCard";
 import EventRow from "../../components/events/EventRow";
 import SuccessModal from "../../components/common/SuccessModal";
+import ConfirmModal from "../../components/common/ConfirmModal";
+import ErrorModal from "../../components/common/ErrorModal";
 import LoadingState from "../../components/common/LoadingState";
 import { GridIcon, ListIcon, SearchIcon } from "../../components/common/icons";
 import type { Event, Category, MyRegistrationsResponse } from "../../types";
@@ -26,6 +28,8 @@ export default function EventsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState<ViewMode>("grid");
   const [successEvent, setSuccessEvent] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [format, setFormat] = useState<FormatFilter>("");
@@ -75,18 +79,25 @@ export default function EventsPage() {
       setMyRegistrations(updated);
       loadEvents();
     } catch (error: unknown) {
-      alert(getApiErrorMessage(error, "Помилка реєстрації"));
+      setErrorMessage(getApiErrorMessage(error, "Помилка реєстрації"));
     }
   };
 
-  const handleCancel = async (id: string) => {
+  const handleCancel = (id: string) => {
+    setConfirmCancelId(id);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!confirmCancelId) return;
     try {
-      await registrationsApi.cancel(id);
+      await registrationsApi.cancel(confirmCancelId);
       const updated = await registrationsApi.getMyRegistrations();
       setMyRegistrations(updated);
       loadEvents();
     } catch (error: unknown) {
-      alert(getApiErrorMessage(error, "Помилка скасування"));
+      setErrorMessage(getApiErrorMessage(error, "Помилка скасування"));
+    } finally {
+      setConfirmCancelId(null);
     }
   };
 
@@ -234,6 +245,23 @@ export default function EventsPage() {
         <SuccessModal
           message={`Ви успішно зареєстровані на подію: ${successEvent}`}
           onClose={() => setSuccessEvent(null)}
+        />
+      )}
+      {errorMessage && (
+        <ErrorModal
+          message={errorMessage}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
+      {confirmCancelId && (
+        <ConfirmModal
+          title="Скасувати участь?"
+          message="Ви впевнені, що хочете скасувати реєстрацію на цю подію?"
+          confirmLabel="Так, скасувати"
+          cancelLabel="Ні, залишитись"
+          variant="warning"
+          onConfirm={handleConfirmCancel}
+          onCancel={() => setConfirmCancelId(null)}
         />
       )}
     </div>
