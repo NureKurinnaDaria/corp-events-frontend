@@ -23,7 +23,6 @@ interface EventCardBaseProps {
   event: Event;
   onView: (id: string) => void;
 }
-
 interface AdminEventCardProps extends EventCardBaseProps {
   isAdmin: true;
   onDelete: (id: string) => void;
@@ -31,7 +30,6 @@ interface AdminEventCardProps extends EventCardBaseProps {
   onRegister?: never;
   onCancel?: never;
 }
-
 interface EmployeeEventCardProps extends EventCardBaseProps {
   isAdmin?: false;
   isRegistered?: boolean;
@@ -39,7 +37,6 @@ interface EmployeeEventCardProps extends EventCardBaseProps {
   onCancel: (id: string) => void;
   onDelete?: never;
 }
-
 type EventCardProps = AdminEventCardProps | EmployeeEventCardProps;
 
 export default function EventCard(props: EventCardProps) {
@@ -57,19 +54,51 @@ export default function EventCard(props: EventCardProps) {
 
   return (
     <div
-      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
-      style={{ opacity: props.isAdmin && isCompleted ? 0.7 : 1 }}
+      className="relative overflow-hidden rounded-2xl flex flex-col"
+      style={{
+        background: "rgba(255,255,255,0.75)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        border: `1px solid ${color.border}`,
+        boxShadow:
+          "0 4px 24px rgba(59,130,246,0.07), 0 1px 4px rgba(0,0,0,0.04)",
+        opacity: props.isAdmin && isCompleted ? 0.65 : 1,
+        transition: "box-shadow 0.25s, transform 0.25s",
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.style.boxShadow = `0 12px 40px rgba(59,130,246,0.16), 0 2px 8px rgba(0,0,0,0.06)`;
+        el.style.transform = "translateY(-3px)";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.style.boxShadow =
+          "0 4px 24px rgba(59,130,246,0.07), 0 1px 4px rgba(0,0,0,0.04)";
+        el.style.transform = "translateY(0)";
+      }}
     >
-      <div className="h-1.5 w-full" style={{ background: color.bar }} />
-      <div className="p-4">
+      {/* Gradient top accent — товстіший, з градієнтом */}
+      <div
+        style={{
+          height: "4px",
+          background: `linear-gradient(90deg, ${color.bar}, ${color.bar}99)`,
+        }}
+      />
+
+      <div className="p-5 flex flex-col flex-1">
+        {/* Category + format */}
         <div className="flex items-center justify-between mb-3">
           <span
-            className="text-xs font-medium px-2.5 py-1 rounded-full"
-            style={{ background: color.bg, color: color.text }}
+            className="text-xs font-semibold px-2.5 py-1 rounded-full"
+            style={{
+              background: color.bg,
+              color: color.text,
+              letterSpacing: "0.01em",
+            }}
           >
             {event.category?.name || "Без категорії"}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {props.isAdmin && (
               <span
                 className="text-xs font-medium px-2.5 py-1 rounded-full"
@@ -79,9 +108,10 @@ export default function EventCard(props: EventCardProps) {
               </span>
             )}
             <span
-              className="flex items-center gap-1 text-xs"
+              className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
               style={{
-                color: event.format === "ONLINE" ? "#1a6fd4" : "#92400e",
+                background: event.format === "ONLINE" ? "#eff6ff" : "#fef9c3",
+                color: event.format === "ONLINE" ? "#1d4ed8" : "#92400e",
               }}
             >
               {event.format === "ONLINE" ? <OnlineIcon /> : <OfflineIcon />}
@@ -90,55 +120,79 @@ export default function EventCard(props: EventCardProps) {
           </div>
         </div>
 
-        <h3 className="text-sm font-medium text-slate-800 mb-1.5">
+        {/* Title */}
+        <h3
+          className="text-slate-900 mb-2 leading-snug"
+          style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px" }}
+        >
           {event.title}
         </h3>
-        <p className="text-xs text-slate-500 mb-3 line-clamp-2">
+
+        {/* Description */}
+        <p className="text-xs text-slate-500 mb-4 line-clamp-2 leading-relaxed flex-1">
           {event.description}
         </p>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
+        {/* Date */}
+        <div
+          className="inline-flex items-center gap-1.5 text-xs mb-3 px-2.5 py-1.5 rounded-xl w-fit"
+          style={{
+            background: "rgba(241,245,249,0.8)",
+            color: "#475569",
+            fontWeight: 500,
+          }}
+        >
           <CalendarIcon />
           {formatDate(event.startAt)}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
-          <UsersIcon />
-          {max
-            ? `${registered} / ${max} учасників`
-            : `${registered} зареєстровано`}
+        {/* Participants + progress */}
+        <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
+          <span className="flex items-center gap-1">
+            <UsersIcon />
+            {max ? `${registered} / ${max}` : `${registered} зареєстровано`}
+          </span>
+          {max && (
+            <span style={{ color: color.text, fontWeight: 600 }}>
+              {Math.round(progress)}%
+            </span>
+          )}
         </div>
 
-        <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mb-2">
+        <div
+          className="rounded-full overflow-hidden mb-3"
+          style={{ height: "5px", background: "rgba(59,130,246,0.08)" }}
+        >
           <div
-            className="h-full rounded-full transition-all"
+            className="h-full rounded-full"
             style={{
               width: max ? `${progress}%` : "0%",
-              background: color.bar,
+              background: `linear-gradient(90deg, ${color.bar}, ${color.bar}cc)`,
+              transition: "width 0.4s ease",
             }}
           />
         </div>
 
-        <div className="mb-3">
+        {/* Free spots */}
+        <div className="mb-4">
           {free !== null ? (
             <span
-              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border"
+              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium"
               style={{
                 color: color.text,
                 background: color.bg,
-                borderColor: color.border,
+                border: `1px solid ${color.border}`,
               }}
             >
-              <UsersIcon />
-              {free} місць вільно
+              <UsersIcon /> {free} місць вільно
             </span>
           ) : (
             <span
-              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border"
+              className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium"
               style={{
                 color: color.text,
                 background: color.bg,
-                borderColor: color.border,
+                border: `1px solid ${color.border}`,
               }}
             >
               ∞ Необмежено
@@ -146,19 +200,48 @@ export default function EventCard(props: EventCardProps) {
           )}
         </div>
 
-        <div className="pt-3 border-t border-slate-100 flex gap-2">
+        {/* Buttons */}
+        <div
+          className="flex gap-2 pt-3"
+          style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+        >
           <button
             onClick={() => onView(event.id)}
-            className="flex-1 py-2 text-xs text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition"
+            className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
+            style={{
+              color: "#64748b",
+              background: "rgba(248,250,252,0.9)",
+              border: "1px solid #e2e8f0",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#f1f5f9";
+              e.currentTarget.style.color = "#334155";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(248,250,252,0.9)";
+              e.currentTarget.style.color = "#64748b";
+            }}
           >
             Деталі
           </button>
+
           {props.isAdmin ? (
             <>
               {event.status !== "CANCELED" && event.status !== "COMPLETED" && (
                 <button
                   onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                  className="flex-1 py-2 text-xs text-blue-700 border border-blue-200 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+                  className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
+                  style={{
+                    color: "#1d4ed8",
+                    background: "#eff6ff",
+                    border: "1px solid #bfdbfe",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#dbeafe";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#eff6ff";
+                  }}
                 >
                   Редагувати
                 </button>
@@ -166,7 +249,18 @@ export default function EventCard(props: EventCardProps) {
               {event.status === "CANCELED" && (
                 <button
                   onClick={() => props.onDelete(event.id)}
-                  className="flex-1 py-2 text-xs text-rose-600 border border-rose-200 bg-rose-50 rounded-lg hover:bg-rose-100 transition"
+                  className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
+                  style={{
+                    color: "#e11d48",
+                    background: "#fff1f2",
+                    border: "1px solid #fecdd3",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#ffe4e6";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#fff1f2";
+                  }}
                 >
                   Видалити
                 </button>
@@ -175,18 +269,42 @@ export default function EventCard(props: EventCardProps) {
           ) : props.isRegistered ? (
             <button
               onClick={() => props.onCancel(event.id)}
-              className="flex-1 py-2 text-xs text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition"
+              className="flex-1 py-2.5 text-xs rounded-xl font-medium transition-all"
+              style={{
+                color: "#e11d48",
+                background: "#fff1f2",
+                border: "1px solid #fecdd3",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#ffe4e6";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#fff1f2";
+              }}
             >
               Скасувати участь
             </button>
           ) : isFull ? (
-            <span className="flex-1 py-2 text-xs text-slate-400 text-center">
+            <span className="flex-1 py-2.5 text-xs text-slate-400 text-center font-medium">
               Місць немає
             </span>
           ) : (
             <button
               onClick={() => props.onRegister(event.id, event.title)}
-              className="flex-1 py-2 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+              className="flex-1 py-2.5 text-xs rounded-xl font-semibold transition-all text-white"
+              style={{
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                border: "none",
+                letterSpacing: "-0.1px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background =
+                  "linear-gradient(135deg, #1d4ed8, #1e40af)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background =
+                  "linear-gradient(135deg, #2563eb, #1d4ed8)";
+              }}
             >
               Зареєструватись
             </button>

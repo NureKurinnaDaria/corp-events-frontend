@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { notificationsApi } from "../../api/notifications";
 import type { Notification } from "../../api/notifications";
 
 export default function NotificationsBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -28,6 +31,18 @@ export default function NotificationsBell() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  const handleToggle = () => {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 320; // w-80 = 320px
+      setDropdownPos({
+        top: rect.top - 8, // відступ вгору від кнопки
+        left: rect.left + rect.width / 2 - dropdownWidth / 2,
+      });
+    }
+    setOpen((v) => !v);
+  };
 
   const handleMarkAll = async () => {
     await notificationsApi.markAllAsRead();
@@ -55,8 +70,18 @@ export default function NotificationsBell() {
     <div ref={ref} className="relative">
       {/* Bell button */}
       <button
-        onClick={() => setOpen((v) => !v)}
-        className="relative flex items-center justify-center p-1.5 rounded-lg text-white/40 hover:text-white transition"
+        ref={buttonRef}
+        onClick={handleToggle}
+        className="relative flex items-center justify-center p-1.5 rounded-lg transition"
+        style={{ color: "#94a3b8" }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "#2563eb";
+          e.currentTarget.style.background = "#eff6ff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "#94a3b8";
+          e.currentTarget.style.background = "transparent";
+        }}
         title="Сповіщення"
       >
         <svg
@@ -79,68 +104,79 @@ export default function NotificationsBell() {
         )}
       </button>
 
-      {/* Dropdown */}
-      {open && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <span className="text-sm font-medium text-slate-800">
-              Сповіщення
-              {unreadCount > 0 && (
-                <span className="ml-2 bg-blue-50 text-blue-600 text-xs font-semibold px-2 py-0.5 rounded-full">
-                  {unreadCount} нових
-                </span>
-              )}
-            </span>
-            {unreadCount > 0 && (
-              <button
-                onClick={handleMarkAll}
-                className="text-xs text-blue-500 hover:text-blue-700 transition"
-              >
-                Прочитати всі
-              </button>
-            )}
-          </div>
-
-          {/* List */}
-          <div className="max-h-80 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <div className="py-8 text-center text-sm text-slate-400">
-                Немає сповіщень
-              </div>
-            ) : (
-              notifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`flex gap-3 px-4 py-3 border-b border-slate-50 last:border-0 ${
-                    n.isRead ? "bg-white" : "bg-blue-50/40"
-                  }`}
-                >
-                  <span className="text-base mt-0.5 flex-shrink-0">
-                    {typeIcon[n.type] ?? "🔔"}
+      {/* Dropdown via portal - renders outside sidebar to avoid overflow:hidden clipping */}
+      {open &&
+        createPortal(
+          <div
+            style={{
+              position: "fixed",
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              zIndex: 9999,
+              transform: "translateY(-100%)", // відкривається вгору
+            }}
+            className="w-80 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden"
+          >
+            {" "}
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+              <span className="text-sm font-medium text-slate-800">
+                Сповіщення
+                {unreadCount > 0 && (
+                  <span className="ml-2 bg-blue-50 text-blue-600 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {unreadCount} нових
                   </span>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-xs mb-0.5 text-slate-800 ${n.isRead ? "font-normal" : "font-medium"}`}
-                    >
-                      {n.title}
-                    </p>
-                    <p className="text-xs text-slate-500 leading-relaxed mb-1">
-                      {n.message}
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      {formatDate(n.createdAt)}
-                    </p>
-                  </div>
-                  {!n.isRead && (
-                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
-                  )}
+                )}
+              </span>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAll}
+                  className="text-xs text-blue-500 hover:text-blue-700 transition"
+                >
+                  Прочитати всі
+                </button>
+              )}
+            </div>
+            {/* List */}
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="py-8 text-center text-sm text-slate-400">
+                  Немає сповіщень
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`flex gap-3 px-4 py-3 border-b border-slate-50 last:border-0 ${
+                      n.isRead ? "bg-white" : "bg-blue-50/40"
+                    }`}
+                  >
+                    <span className="text-base mt-0.5 flex-shrink-0">
+                      {typeIcon[n.type] ?? "🔔"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-xs mb-0.5 text-slate-800 ${n.isRead ? "font-normal" : "font-medium"}`}
+                      >
+                        {n.title}
+                      </p>
+                      <p className="text-xs text-slate-500 leading-relaxed mb-1">
+                        {n.message}
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        {formatDate(n.createdAt)}
+                      </p>
+                    </div>
+                    {!n.isRead && (
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

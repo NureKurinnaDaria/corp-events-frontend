@@ -25,6 +25,25 @@ import {
 import type { Event } from "../../types";
 import type { Feedback } from "../../api/feedback";
 
+const card: React.CSSProperties = {
+  background: "rgba(255,255,255,0.75)",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  border: "1px solid rgba(59,130,246,0.10)",
+  boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
+  borderRadius: "16px",
+  overflow: "hidden",
+};
+
+const sectionLabel: React.CSSProperties = {
+  fontSize: "10px",
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  color: "#94a3b8",
+  textTransform: "uppercase",
+  marginBottom: "8px",
+};
+
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -35,7 +54,6 @@ export default function EventDetailPage() {
   const backPath = location.pathname.startsWith("/my-registrations")
     ? "/my-registrations"
     : "/events";
-
   const openFeedback =
     (location.state as { openFeedback?: boolean } | null)?.openFeedback ??
     false;
@@ -53,13 +71,10 @@ export default function EventDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
-
     const eventPromise = locationEvent
       ? Promise.resolve(locationEvent)
       : eventsApi.getById(id);
-
     Promise.all([
       eventPromise,
       registrationsApi.getMyRegistrations(),
@@ -79,18 +94,14 @@ export default function EventDetailPage() {
           setIsCompleted(eventData.status === "COMPLETED");
           setEventFeedbacks(eventFeedbacksData as Feedback[]);
           setReport(reportData);
-
           const allRegistrations = [
             ...registrationsData.upcoming,
             ...registrationsData.completed,
           ];
           const found = allRegistrations.find(
-            (registration) =>
-              registration.event.id === id &&
-              registration.status === "REGISTERED",
+            (r) => r.event.id === id && r.status === "REGISTERED",
           );
           setIsRegistered(!!found);
-
           const existing = feedbacks.find((f) => f.eventId === id);
           if (existing) setMyFeedback(existing);
         },
@@ -158,12 +169,17 @@ export default function EventDetailPage() {
   const registered = event.participantsCount;
   const free = max ? max - registered : null;
   const isFull = max !== null && max !== undefined && registered >= max;
+  const progress = max ? Math.min((registered / max) * 100, 100) : 0;
 
   return (
     <div>
+      {/* Back button */}
       <button
         onClick={() => navigate(backPath)}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition mb-4"
+        className="flex items-center gap-1.5 text-sm transition mb-5"
+        style={{ color: "#64748b", fontWeight: 500 }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#2563eb")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}
       >
         <ChevronLeftIcon />
         {backPath === "/my-registrations"
@@ -171,21 +187,28 @@ export default function EventDetailPage() {
           : "Назад до подій"}
       </button>
 
-      {/* Картка події */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="h-1.5 w-full" style={{ background: color.bar }} />
+      {/* Main card */}
+      <div style={card}>
+        <div
+          style={{
+            height: "4px",
+            background: `linear-gradient(90deg, ${color.bar}, ${color.bar}99)`,
+          }}
+        />
         <div className="p-6">
-          <div className="flex items-center gap-3 mb-4">
+          {/* Category + format */}
+          <div className="flex items-center gap-2 mb-4">
             <span
-              className="text-xs font-medium px-2.5 py-1 rounded-full"
+              className="text-xs font-semibold px-2.5 py-1 rounded-full"
               style={{ background: color.bg, color: color.text }}
             >
               {event.category?.name || "Без категорії"}
             </span>
             <span
-              className="flex items-center gap-1 text-xs"
+              className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
               style={{
-                color: event.format === "ONLINE" ? "#1a6fd4" : "#92400e",
+                background: event.format === "ONLINE" ? "#eff6ff" : "#fef9c3",
+                color: event.format === "ONLINE" ? "#1d4ed8" : "#92400e",
               }}
             >
               {event.format === "ONLINE" ? <OnlineIcon /> : <OfflineIcon />}
@@ -193,35 +216,51 @@ export default function EventDetailPage() {
             </span>
           </div>
 
-          <h1 className="text-xl font-medium text-slate-800 mb-2">
+          {/* Title + description */}
+          <h1
+            className="text-slate-900 mb-2"
+            style={{
+              fontSize: "22px",
+              fontWeight: 700,
+              letterSpacing: "-0.4px",
+            }}
+          >
             {event.title}
           </h1>
           <p className="text-sm text-slate-500 mb-6 leading-relaxed">
             {event.description}
           </p>
 
+          {/* Date grid */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="rounded-lg p-3" style={{ background: "#E6F1FB" }}>
-              <p className="text-xs text-slate-500 mb-1">Початок</p>
-              <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
-                <CalendarIcon />
-                {formatDate(event.startAt)}
-              </p>
-            </div>
-            <div className="rounded-lg p-3" style={{ background: "#E6F1FB" }}>
-              <p className="text-xs text-slate-500 mb-1">Кінець</p>
-              <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
-                <CalendarIcon />
-                {formatDate(event.endAt)}
-              </p>
-            </div>
+            {[
+              { label: "Початок", val: event.startAt },
+              { label: "Кінець", val: event.endAt },
+            ].map(({ label, val }) => (
+              <div
+                key={label}
+                className="rounded-xl p-3"
+                style={{
+                  background: "rgba(241,245,249,0.8)",
+                  border: "1px solid rgba(59,130,246,0.07)",
+                }}
+              >
+                <p style={sectionLabel}>{label}</p>
+                <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
+                  <CalendarIcon />
+                  {formatDate(val)}
+                </p>
+              </div>
+            ))}
           </div>
 
+          {/* Location */}
           {event.format === "OFFLINE" && event.location && (
-            <div className="border-t border-slate-100 pt-5 mb-5">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                Місце проведення
-              </p>
+            <div
+              className="mb-5 pt-5"
+              style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+            >
+              <p style={sectionLabel}>Місце проведення</p>
               <p className="text-sm text-slate-700 flex items-center gap-2">
                 <LocationIcon />
                 {event.location}
@@ -229,11 +268,13 @@ export default function EventDetailPage() {
             </div>
           )}
 
+          {/* Online link */}
           {event.format === "ONLINE" && event.onlineUrl && isRegistered && (
-            <div className="border-t border-slate-100 pt-5 mb-5">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                Посилання
-              </p>
+            <div
+              className="mb-5 pt-5"
+              style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+            >
+              <p style={sectionLabel}>Посилання</p>
               <a
                 href={event.onlineUrl}
                 target="_blank"
@@ -246,38 +287,70 @@ export default function EventDetailPage() {
             </div>
           )}
 
-          <div className="border-t border-slate-100 pt-5 mb-6">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
-              Учасники
-            </p>
-            <div className="flex items-center gap-2 text-sm text-slate-700 mb-2">
-              <UsersIcon />
-              {max != null && registered != null
-                ? `${registered} / ${max} зареєстровано`
-                : registered != null
-                  ? `${registered} зареєстровано`
-                  : "Дані недоступні"}
-              {free !== null && free !== undefined && (
-                <span className="text-slate-400">· {free} місць вільно</span>
+          {/* Participants */}
+          <div
+            className="mb-6 pt-5"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+          >
+            <p style={sectionLabel}>Учасники</p>
+            <div className="flex items-center justify-between text-sm text-slate-700 mb-2">
+              <span className="flex items-center gap-1.5">
+                <UsersIcon />
+                {max != null
+                  ? `${registered} / ${max} зареєстровано`
+                  : `${registered} зареєстровано`}
+                {free !== null && (
+                  <span className="text-slate-400">· {free} місць вільно</span>
+                )}
+              </span>
+              {max && (
+                <span
+                  style={{
+                    color: color.text,
+                    fontWeight: 600,
+                    fontSize: "12px",
+                  }}
+                >
+                  {Math.round(progress)}%
+                </span>
               )}
             </div>
             {max && (
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="rounded-full overflow-hidden"
+                style={{ height: "5px", background: "rgba(59,130,246,0.08)" }}
+              >
                 <div
                   className="h-full rounded-full"
                   style={{
-                    width: `${Math.min((registered / max) * 100, 100)}%`,
-                    background: color.bar,
+                    width: `${progress}%`,
+                    background: `linear-gradient(90deg, ${color.bar}, ${color.bar}cc)`,
+                    transition: "width 0.4s ease",
                   }}
                 />
               </div>
             )}
           </div>
 
+          {/* Action buttons */}
           <div className="flex gap-3">
             <button
               onClick={() => navigate(backPath)}
-              className="px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition"
+              className="px-5 py-2.5 text-sm rounded-xl transition"
+              style={{
+                color: "#64748b",
+                background: "rgba(248,250,252,0.9)",
+                border: "1px solid #e2e8f0",
+                fontWeight: 500,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#f1f5f9";
+                e.currentTarget.style.color = "#334155";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(248,250,252,0.9)";
+                e.currentTarget.style.color = "#64748b";
+              }}
             >
               Назад
             </button>
@@ -289,7 +362,19 @@ export default function EventDetailPage() {
               <button
                 onClick={handleCancel}
                 disabled={isSubmitting}
-                className="flex-1 py-2.5 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition disabled:opacity-50"
+                className="flex-1 py-2.5 text-sm rounded-xl transition disabled:opacity-50"
+                style={{
+                  color: "#e11d48",
+                  background: "#fff1f2",
+                  border: "1px solid #fecdd3",
+                  fontWeight: 500,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#ffe4e6";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#fff1f2";
+                }}
               >
                 {isSubmitting ? "Скасування..." : "Скасувати реєстрацію"}
               </button>
@@ -301,7 +386,20 @@ export default function EventDetailPage() {
               <button
                 onClick={handleRegister}
                 disabled={isSubmitting}
-                className="flex-1 py-2.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition disabled:opacity-50"
+                className="flex-1 py-2.5 text-sm rounded-xl transition disabled:opacity-50 text-white"
+                style={{
+                  background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                  border: "none",
+                  fontWeight: 600,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #1d4ed8, #1e40af)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #2563eb, #1d4ed8)";
+                }}
               >
                 {isSubmitting ? "Реєстрація..." : "Зареєструватись"}
               </button>
@@ -310,25 +408,28 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      {/* Блок відгуку */}
+      {/* Feedback block */}
       {isCompleted && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
-          <div className="h-1.5 w-full" style={{ background: color.bar }} />
+        <div style={{ ...card, marginTop: "16px" }}>
+          <div
+            style={{
+              height: "4px",
+              background: `linear-gradient(90deg, ${color.bar}, ${color.bar}99)`,
+            }}
+          />
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-                Відгук про подію
-              </p>
+              <p style={sectionLabel}>Відгук про подію</p>
               {!myFeedback && !showFeedback && (
                 <button
                   onClick={() => setShowFeedback(true)}
                   className="text-sm text-blue-600 hover:underline"
+                  style={{ fontWeight: 500 }}
                 >
                   Залишити відгук
                 </button>
               )}
             </div>
-
             {myFeedback ? (
               <FeedbackDisplay feedback={myFeedback} />
             ) : showFeedback ? (
@@ -344,10 +445,15 @@ export default function EventDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Report block */}
       {isCompleted && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <span className="text-sm font-medium text-slate-800">
+        <div style={{ ...card, marginTop: "16px" }}>
+          <div
+            className="flex items-center justify-between px-5 py-4"
+            style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+          >
+            <span className="text-sm font-semibold text-slate-800">
               Звіт про подію
             </span>
             {report && (
@@ -366,13 +472,18 @@ export default function EventDetailPage() {
           </div>
         </div>
       )}
+
+      {/* All feedbacks */}
       {isCompleted && eventFeedbacks.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
-          <div className="h-1.5 w-full" style={{ background: color.bar }} />
+        <div style={{ ...card, marginTop: "16px" }}>
+          <div
+            style={{
+              height: "4px",
+              background: `linear-gradient(90deg, ${color.bar}, ${color.bar}99)`,
+            }}
+          />
           <div className="p-6">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">
-              Відгуки учасників
-            </p>
+            <p style={sectionLabel}>Відгуки учасників</p>
             <FeedbackList
               feedbacks={eventFeedbacks.filter((f) => f.id !== myFeedback?.id)}
             />

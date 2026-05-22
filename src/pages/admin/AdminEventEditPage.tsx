@@ -35,17 +35,25 @@ export default function AdminEventEditPage() {
     <div>
       <button
         onClick={() => navigate(`/admin/events/${id}`)}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition mb-4"
+        className="flex items-center gap-1.5 text-sm transition mb-5"
+        style={{ color: "#64748b", fontWeight: 500 }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#2563eb")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}
       >
-        <ChevronLeftIcon />
-        Назад до деталей події
+        <ChevronLeftIcon /> Назад до деталей події
       </button>
 
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-slate-500">Редагування події</span>
+      <div className="mb-4">
+        <h1
+          className="text-slate-900 mb-1"
+          style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.4px" }}
+        >
+          Редагування події
+        </h1>
+        <p className="text-sm text-slate-400">{event.title}</p>
       </div>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl">
         <EventForm
           initialData={event}
           onSubmit={handleSubmit}

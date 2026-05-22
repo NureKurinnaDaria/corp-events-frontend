@@ -6,6 +6,30 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import LoadingState from "../../components/common/LoadingState";
 import type { Category } from "../../types";
 
+const glassCard: React.CSSProperties = {
+  background: "rgba(255,255,255,0.75)",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  border: "1px solid rgba(59,130,246,0.10)",
+  boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
+  borderRadius: "16px",
+  overflow: "hidden",
+};
+
+const inp: React.CSSProperties = {
+  background: "#f8fafc",
+  border: "1px solid #e2e8f0",
+  fontFamily: "inherit",
+};
+const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  e.target.style.borderColor = "#2563eb";
+  e.target.style.background = "#fafcff";
+};
+const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  e.target.style.borderColor = "#e2e8f0";
+  e.target.style.background = "#f8fafc";
+};
+
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,47 +122,79 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const inputClass =
-    "border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
-
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-slate-800">Категорії</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Управління категоріями подій
-        </p>
+        <h1
+          className="text-slate-900 mb-1"
+          style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.4px" }}
+        >
+          Категорії
+        </h1>
+        <p className="text-sm text-slate-400">Управління категоріями подій</p>
       </div>
 
       {/* Create form */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 mb-5">
-        <p className="text-sm font-medium text-slate-700 mb-3">
-          Нова категорія
-        </p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newName}
-            onChange={(e) => {
-              setNewName(e.target.value);
-              setCreateError("");
+      <div style={{ ...glassCard, marginBottom: "16px" }}>
+        <div
+          style={{
+            height: "4px",
+            background: "linear-gradient(90deg, #2563eb, #1d4ed8)",
+          }}
+        />
+        <div className="p-5">
+          <p
+            style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              marginBottom: "12px",
             }}
-            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-            placeholder="Назва категорії"
-            className={`flex-1 ${inputClass}`}
-          />
-          <button
-            onClick={handleCreate}
-            disabled={isCreating}
-            className="px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50 whitespace-nowrap"
           >
-            {isCreating ? "Додавання..." : "Додати"}
-          </button>
+            Нова категорія
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => {
+                setNewName(e.target.value);
+                setCreateError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+              placeholder="Назва категорії"
+              className="flex-1 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
+              style={inp}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            <button
+              onClick={handleCreate}
+              disabled={isCreating}
+              className="px-5 py-2 text-sm font-semibold text-white rounded-xl transition disabled:opacity-50 whitespace-nowrap"
+              style={{
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                border: "none",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background =
+                  "linear-gradient(135deg, #1d4ed8, #1e40af)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background =
+                  "linear-gradient(135deg, #2563eb, #1d4ed8)";
+              }}
+            >
+              {isCreating ? "Додавання..." : "Додати"}
+            </button>
+          </div>
+          {createError && (
+            <p className="text-xs text-red-500 mt-2">{createError}</p>
+          )}
         </div>
-        {createError && (
-          <p className="text-xs text-rose-500 mt-2">{createError}</p>
-        )}
       </div>
 
       {/* Search + sort */}
@@ -161,12 +217,29 @@ export default function AdminCategoriesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Пошук категорій..."
-            className={`w-full pl-9 ${inputClass}`}
+            className="w-full pl-9 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
+            style={inp}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
         </div>
         <button
           onClick={() => setSortOrder((o) => (o === "asc" ? "desc" : "asc"))}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition"
+          style={{
+            color: "#64748b",
+            background: "rgba(255,255,255,0.75)",
+            border: "1px solid rgba(59,130,246,0.10)",
+            backdropFilter: "blur(12px)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#2563eb";
+            e.currentTarget.style.background = "#eff6ff";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#64748b";
+            e.currentTarget.style.background = "rgba(255,255,255,0.75)";
+          }}
         >
           <svg
             width="14"
@@ -183,7 +256,7 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* List */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div style={glassCard}>
         {isLoading ? (
           <LoadingState />
         ) : categories.length === 0 ? (
@@ -191,8 +264,8 @@ export default function AdminCategoriesPage() {
             {search ? "Нічого не знайдено" : "Категорій ще немає"}
           </div>
         ) : (
-          <ul className="divide-y divide-slate-100">
-            {categories.map((category) => {
+          <ul>
+            {categories.map((category, i) => {
               const color = getCategoryColor(
                 String(categories.indexOf(category)),
               );
@@ -202,6 +275,10 @@ export default function AdminCategoriesPage() {
                 <li
                   key={category.id}
                   className="flex items-center gap-3 px-5 py-3.5"
+                  style={{
+                    borderTop:
+                      i > 0 ? "1px solid rgba(59,130,246,0.06)" : "none",
+                  }}
                 >
                   {isEditing ? (
                     <div className="flex-1">
@@ -218,24 +295,52 @@ export default function AdminCategoriesPage() {
                             if (e.key === "Escape") handleEditCancel();
                           }}
                           autoFocus
-                          className={`flex-1 ${inputClass}`}
+                          className="flex-1 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none transition"
+                          style={inp}
+                          onFocus={onFocus}
+                          onBlur={onBlur}
                         />
                         <button
                           onClick={handleEditSave}
                           disabled={isSaving}
-                          className="px-3.5 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50"
+                          className="px-3.5 py-2 text-xs font-semibold text-white rounded-xl transition disabled:opacity-50"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                            border: "none",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, #1d4ed8, #1e40af)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, #2563eb, #1d4ed8)";
+                          }}
                         >
                           {isSaving ? "..." : "Зберегти"}
                         </button>
                         <button
                           onClick={handleEditCancel}
-                          className="px-3.5 py-2 text-xs text-slate-600 border border-slate-300 hover:bg-slate-50 rounded-lg transition"
+                          className="px-3.5 py-2 text-xs font-medium rounded-xl transition"
+                          style={{
+                            color: "#64748b",
+                            background: "rgba(248,250,252,0.9)",
+                            border: "1px solid #e2e8f0",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "#f1f5f9";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "rgba(248,250,252,0.9)";
+                          }}
                         >
                           Скасувати
                         </button>
                       </div>
                       {editingError && (
-                        <p className="text-xs text-rose-500 mt-1.5">
+                        <p className="text-xs text-red-500 mt-1.5">
                           {editingError}
                         </p>
                       )}
@@ -243,7 +348,7 @@ export default function AdminCategoriesPage() {
                   ) : (
                     <>
                       <span
-                        className="text-xs font-medium px-2.5 py-1 rounded-full"
+                        className="text-xs font-semibold px-2.5 py-1 rounded-full"
                         style={{
                           background: color.bg,
                           color: color.text,
@@ -255,13 +360,35 @@ export default function AdminCategoriesPage() {
                       <div className="flex items-center gap-1.5 ml-auto">
                         <button
                           onClick={() => handleEditStart(category)}
-                          className="px-3 py-1.5 text-xs text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-lg transition"
+                          className="px-3 py-1.5 text-xs font-medium rounded-xl transition"
+                          style={{
+                            color: "#1d4ed8",
+                            background: "#eff6ff",
+                            border: "1px solid #bfdbfe",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "#dbeafe";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "#eff6ff";
+                          }}
                         >
                           Редагувати
                         </button>
                         <button
                           onClick={() => setDeleteTargetId(category.id)}
-                          className="px-3 py-1.5 text-xs text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 rounded-lg transition"
+                          className="px-3 py-1.5 text-xs font-medium rounded-xl transition"
+                          style={{
+                            color: "#e11d48",
+                            background: "#fff1f2",
+                            border: "1px solid #fecdd3",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "#ffe4e6";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "#fff1f2";
+                          }}
                         >
                           Видалити
                         </button>
@@ -284,18 +411,17 @@ export default function AdminCategoriesPage() {
       )}
 
       {deleteError && (
-        <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mt-3">
+        <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mt-3 flex items-center justify-between">
           {deleteError}
           <button
             onClick={() => setDeleteError("")}
-            className="ml-3 text-red-400 hover:text-red-600 transition"
+            className="text-red-400 hover:text-red-600 transition ml-3"
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* Confirm delete */}
       {deleteTargetId && (
         <ConfirmModal
           title="Видалити категорію?"

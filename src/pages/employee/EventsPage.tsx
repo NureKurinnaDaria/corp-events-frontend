@@ -93,14 +93,28 @@ export default function EventsPage() {
   return (
     <div>
       <div className="mb-5">
-        <h1 className="text-xl font-medium text-slate-800 mb-1">Події</h1>
-        <p className="text-sm text-slate-500">
+        <h1
+          className="text-slate-900 mb-1"
+          style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.4px" }}
+        >
+          Події
+        </h1>
+        <p className="text-sm text-slate-400" style={{ fontWeight: 400 }}>
           Перегляд майбутніх корпоративних подій
         </p>
       </div>
 
       {/* Filter row 1 */}
-      <div className="bg-white rounded-xl border border-slate-200 px-4 py-2.5 mb-2 flex items-center gap-3">
+      <div
+        className="px-4 py-2.5 mb-2 flex items-center gap-3 rounded-2xl"
+        style={{
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(59,130,246,0.10)",
+          boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
+        }}
+      >
         <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2">
           <SearchIcon />
           <input
@@ -162,7 +176,16 @@ export default function EventsPage() {
       </div>
 
       {/* Filter row 2 */}
-      <div className="bg-white rounded-xl border border-slate-200 px-4 py-2.5 mb-5 flex items-center gap-3">
+      <div
+        className="px-4 py-2.5 mb-5 flex items-center gap-3 rounded-2xl"
+        style={{
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(59,130,246,0.10)",
+          boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
+        }}
+      >
         <span className="text-sm text-slate-500">Сортування:</span>
         <select
           value={sort}

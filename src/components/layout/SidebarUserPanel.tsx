@@ -18,18 +18,30 @@ export default function SidebarUserPanel({
   const initials = user?.fullName
     ? user.fullName
         .split(" ")
-        .map((name) => name[0])
+        .map((n) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
     : "??";
 
   return (
-    <div className="px-2 py-4 border-t border-white/10 space-y-2">
+    <div
+      className="px-2 py-4 space-y-2"
+      style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+    >
       {collapsed && (
         <button
           onClick={onExpand}
-          className="w-full flex justify-center py-2 text-white/40 hover:text-white transition"
+          className="w-full flex justify-center py-2 transition rounded-xl"
+          style={{ color: "#94a3b8" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#2563eb";
+            e.currentTarget.style.background = "#eff6ff";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#94a3b8";
+            e.currentTarget.style.background = "transparent";
+          }}
         >
           <ChevronRightIcon />
         </button>
@@ -38,17 +50,22 @@ export default function SidebarUserPanel({
       <div
         className={`flex items-center gap-3 px-2 ${collapsed ? "justify-center" : ""}`}
       >
-        {/* Аватар */}
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+          style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)" }}
+        >
           {initials}
         </div>
 
         {!collapsed && (
           <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-medium truncate">
+            <p
+              className="text-xs font-semibold truncate"
+              style={{ color: "#1e293b" }}
+            >
               {user?.fullName || "Користувач"}
             </p>
-            <p className="text-white/40 text-xs">
+            <p className="text-xs" style={{ color: "#94a3b8" }}>
               {user?.role === "ADMIN" ? "Адміністратор" : "Співробітник"}
             </p>
           </div>
@@ -59,8 +76,17 @@ export default function SidebarUserPanel({
             <NotificationsBell />
             <button
               onClick={onLogout}
-              className="text-white/40 hover:text-white transition"
+              className="transition rounded-lg p-1"
+              style={{ color: "#94a3b8" }}
               title="Вийти"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#e11d48";
+                e.currentTarget.style.background = "#fff1f2";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "#94a3b8";
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               <LogoutIcon />
             </button>
@@ -73,8 +99,17 @@ export default function SidebarUserPanel({
           <NotificationsBell />
           <button
             onClick={onLogout}
-            className="w-full flex justify-center py-2 text-white/40 hover:text-red-400 transition"
+            className="w-full flex justify-center py-2 transition rounded-xl"
+            style={{ color: "#94a3b8" }}
             title="Вийти"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#e11d48";
+              e.currentTarget.style.background = "#fff1f2";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "#94a3b8";
+              e.currentTarget.style.background = "transparent";
+            }}
           >
             <LogoutIcon />
           </button>

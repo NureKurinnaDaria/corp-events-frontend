@@ -15,9 +15,12 @@ export default function SidebarNav({
   navItems,
 }: SidebarNavProps) {
   return (
-    <nav className="flex-1 px-2 py-4 space-y-1">
+    <nav className="flex-1 px-2 py-4 space-y-0.5">
       {!collapsed && (
-        <p className="text-white/30 text-xs font-medium px-2 mb-2 uppercase tracking-widest">
+        <p
+          className="text-xs font-semibold px-3 mb-2 uppercase tracking-widest"
+          style={{ color: "#94a3b8", fontSize: "10px" }}
+        >
           {role === "ADMIN" ? "Управління" : "Головне"}
         </p>
       )}
@@ -28,13 +31,22 @@ export default function SidebarNav({
           to={item.to}
           title={collapsed ? item.label : undefined}
           className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
-              collapsed ? "justify-center" : ""
-            } ${
-              isActive
-                ? "bg-blue-600 text-white"
-                : "text-white/60 hover:text-white hover:bg-white/10"
+            `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${collapsed ? "justify-center" : ""} ${
+              isActive ? "active-nav" : "inactive-nav"
             }`
+          }
+          style={({ isActive }) =>
+            isActive
+              ? {
+                  background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  boxShadow: "0 4px 12px rgba(37,99,235,0.25)",
+                }
+              : {
+                  color: "#64748b",
+                  fontWeight: 500,
+                }
           }
         >
           <span className="flex-shrink-0">{item.icon}</span>
@@ -42,26 +54,40 @@ export default function SidebarNav({
         </NavLink>
       ))}
 
-      <div className="pt-3">
+      <div className="pt-4">
         {!collapsed && (
-          <p className="text-white/30 text-xs font-medium px-2 mb-2 uppercase tracking-widest">
+          <p
+            className="text-xs font-semibold px-3 mb-2 uppercase tracking-widest"
+            style={{ color: "#94a3b8", fontSize: "10px" }}
+          >
             Акаунт
           </p>
         )}
-
-        {collapsed && <div className="border-t border-white/10 mb-2" />}
+        {collapsed && (
+          <div
+            className="my-2"
+            style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+          />
+        )}
 
         <NavLink
           to="/profile"
           title={collapsed ? "Профіль" : undefined}
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
-              collapsed ? "justify-center" : ""
-            } ${
-              isActive
-                ? "bg-blue-600 text-white"
-                : "text-white/60 hover:text-white hover:bg-white/10"
-            }`
+          className={({ isActive: _isActive }) =>
+            `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${collapsed ? "justify-center" : ""}`
+          }
+          style={({ isActive }) =>
+            isActive
+              ? {
+                  background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  boxShadow: "0 4px 12px rgba(37,99,235,0.25)",
+                }
+              : {
+                  color: "#64748b",
+                  fontWeight: 500,
+                }
           }
         >
           <span className="flex-shrink-0">

@@ -41,20 +41,39 @@ const AVATAR_COLORS = [
   { bg: "#fff1f2", color: "#be123c" },
 ];
 
-function getInitials(fullName: string | null, email: string): string {
+const glass: React.CSSProperties = {
+  background: "rgba(255,255,255,0.75)",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  border: "1px solid rgba(59,130,246,0.10)",
+  boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
+  borderRadius: "16px",
+  overflow: "hidden",
+};
+
+const sectionLabel: React.CSSProperties = {
+  fontSize: "10px",
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  color: "#94a3b8",
+  textTransform: "uppercase",
+  marginBottom: "8px",
+};
+
+function getInitials(fullName: string | null, email: string) {
   if (fullName) {
-    const parts = fullName.trim().split(" ");
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return parts[0][0].toUpperCase();
+    const p = fullName.trim().split(" ");
+    return p.length >= 2
+      ? (p[0][0] + p[1][0]).toUpperCase()
+      : p[0][0].toUpperCase();
   }
   return email[0].toUpperCase();
 }
 
 function getAvatarColor(id: string) {
   let hash = 0;
-  for (let i = 0; i < id.length; i++) {
+  for (let i = 0; i < id.length; i++)
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  }
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
@@ -73,6 +92,7 @@ export default function AdminEventDetailPage() {
   );
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [report, setReport] = useState<Report | null>(null);
+
   useEffect(() => {
     if (!id) return;
     setIsLoading(true);
@@ -124,9 +144,8 @@ export default function AdminEventDetailPage() {
       setParticipants((prev) =>
         prev.filter((p) => p.registrationId !== participantToCancel),
       );
-      if (event) {
+      if (event)
         setEvent({ ...event, participantsCount: event.participantsCount - 1 });
-      }
     } catch (err: unknown) {
       alert(getApiErrorMessage(err, "Помилка скасування"));
     } finally {
@@ -142,27 +161,43 @@ export default function AdminEventDetailPage() {
   const max = event.maxParticipants;
   const registered = event.participantsCount;
   const free = max ? max - registered : null;
+  const progress = max ? Math.min((registered / max) * 100, 100) : 0;
   const isEditable = event.status === "PUBLISHED" || event.status === "ONGOING";
 
   return (
     <div>
       <button
         onClick={() => navigate("/admin/events")}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition mb-4"
+        className="flex items-center gap-1.5 text-sm transition mb-5"
+        style={{ color: "#64748b", fontWeight: 500 }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#2563eb")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#64748b")}
       >
-        <ChevronLeftIcon />
-        Назад до подій
+        <ChevronLeftIcon /> Назад до подій
       </button>
 
-      {/* Header row */}
+      {/* Action buttons row */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-slate-500">Деталі події</span>
+        <p className="text-xs text-slate-400" style={{ fontWeight: 500 }}>
+          Деталі події
+        </p>
         <div className="flex items-center gap-2">
           {isEditable && (
             <button
               onClick={() => setShowCancelConfirm(true)}
               disabled={isCanceling}
-              className="px-4 py-2 text-sm text-amber-700 border border-amber-200 bg-amber-50 hover:bg-amber-100 rounded-xl transition disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium rounded-xl transition disabled:opacity-50"
+              style={{
+                color: "#92400e",
+                background: "#fef9c3",
+                border: "1px solid #fde68a",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#fef08a";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#fef9c3";
+              }}
             >
               {isCanceling ? "Скасування..." : "Скасувати подію"}
             </button>
@@ -170,7 +205,18 @@ export default function AdminEventDetailPage() {
           {isEditable && (
             <button
               onClick={() => navigate(`/admin/events/${id}/edit`)}
-              className="px-4 py-2 text-sm text-blue-700 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-xl transition"
+              className="px-4 py-2 text-sm font-medium rounded-xl transition"
+              style={{
+                color: "#1d4ed8",
+                background: "#eff6ff",
+                border: "1px solid #bfdbfe",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#dbeafe";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#eff6ff";
+              }}
             >
               Редагувати
             </button>
@@ -178,7 +224,18 @@ export default function AdminEventDetailPage() {
           {event.status === "CANCELED" && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 text-sm text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 rounded-xl transition"
+              className="px-4 py-2 text-sm font-medium rounded-xl transition"
+              style={{
+                color: "#e11d48",
+                background: "#fff1f2",
+                border: "1px solid #fecdd3",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#ffe4e6";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#fff1f2";
+              }}
             >
               Видалити
             </button>
@@ -187,29 +244,35 @@ export default function AdminEventDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4 items-start">
-        {/* LEFT — event details */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="h-1.5 w-full" style={{ background: color.bar }} />
+        {/* LEFT */}
+        <div style={glass}>
+          <div
+            style={{
+              height: "4px",
+              background: `linear-gradient(90deg, ${color.bar}, ${color.bar}99)`,
+            }}
+          />
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               {event.category?.name && (
                 <span
-                  className="text-xs font-medium px-2.5 py-1 rounded-full"
+                  className="text-xs font-semibold px-2.5 py-1 rounded-full"
                   style={{ background: color.bg, color: color.text }}
                 >
                   {event.category.name}
                 </span>
               )}
               <span
-                className="text-xs font-medium px-2.5 py-1 rounded-full"
+                className="text-xs font-semibold px-2.5 py-1 rounded-full"
                 style={{ background: status.bg, color: status.color }}
               >
                 {status.label}
               </span>
               <span
-                className="flex items-center gap-1 text-xs"
+                className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
                 style={{
-                  color: event.format === "ONLINE" ? "#1a6fd4" : "#92400e",
+                  background: event.format === "ONLINE" ? "#eff6ff" : "#fef9c3",
+                  color: event.format === "ONLINE" ? "#1d4ed8" : "#92400e",
                 }}
               >
                 {event.format === "ONLINE" ? <OnlineIcon /> : <OfflineIcon />}
@@ -217,7 +280,14 @@ export default function AdminEventDetailPage() {
               </span>
             </div>
 
-            <h1 className="text-xl font-medium text-slate-800 mb-2">
+            <h1
+              className="text-slate-900 mb-2"
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                letterSpacing: "-0.4px",
+              }}
+            >
               {event.title}
             </h1>
             <p className="text-sm text-slate-500 mb-6 leading-relaxed">
@@ -225,27 +295,33 @@ export default function AdminEventDetailPage() {
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="rounded-lg p-3" style={{ background: "#E6F1FB" }}>
-                <p className="text-xs text-slate-500 mb-1">Початок</p>
-                <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
-                  <CalendarIcon />
-                  {formatDate(event.startAt)}
-                </p>
-              </div>
-              <div className="rounded-lg p-3" style={{ background: "#E6F1FB" }}>
-                <p className="text-xs text-slate-500 mb-1">Кінець</p>
-                <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
-                  <CalendarIcon />
-                  {formatDate(event.endAt)}
-                </p>
-              </div>
+              {[
+                { label: "Початок", val: event.startAt },
+                { label: "Кінець", val: event.endAt },
+              ].map(({ label, val }) => (
+                <div
+                  key={label}
+                  className="rounded-xl p-3"
+                  style={{
+                    background: "rgba(241,245,249,0.8)",
+                    border: "1px solid rgba(59,130,246,0.07)",
+                  }}
+                >
+                  <p style={sectionLabel}>{label}</p>
+                  <p className="text-sm font-medium text-slate-800 flex items-center gap-1.5">
+                    <CalendarIcon />
+                    {formatDate(val)}
+                  </p>
+                </div>
+              ))}
             </div>
 
             {event.format === "OFFLINE" && event.location && (
-              <div className="border-t border-slate-100 pt-5 mb-5">
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  Місце проведення
-                </p>
+              <div
+                className="mb-5 pt-5"
+                style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+              >
+                <p style={sectionLabel}>Місце проведення</p>
                 <p className="text-sm text-slate-700 flex items-center gap-2">
                   <LocationIcon />
                   {event.location}
@@ -254,10 +330,11 @@ export default function AdminEventDetailPage() {
             )}
 
             {event.format === "ONLINE" && event.onlineUrl && (
-              <div className="border-t border-slate-100 pt-5 mb-5">
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  Посилання
-                </p>
+              <div
+                className="mb-5 pt-5"
+                style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+              >
+                <p style={sectionLabel}>Посилання</p>
                 <a
                   href={event.onlineUrl}
                   target="_blank"
@@ -270,26 +347,45 @@ export default function AdminEventDetailPage() {
               </div>
             )}
 
-            <div className="border-t border-slate-100 pt-5">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
-                Учасники
-              </p>
-              <div className="flex items-center gap-2 text-sm text-slate-700 mb-2">
-                <UsersIcon />
-                {max != null
-                  ? `${registered} / ${max} зареєстровано`
-                  : `${registered} зареєстровано`}
-                {free !== null && (
-                  <span className="text-slate-400">· {free} місць вільно</span>
+            <div
+              className="pt-5"
+              style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+            >
+              <p style={sectionLabel}>Учасники</p>
+              <div className="flex items-center justify-between text-sm text-slate-700 mb-2">
+                <span className="flex items-center gap-1.5">
+                  <UsersIcon />
+                  {max != null
+                    ? `${registered} / ${max} зареєстровано`
+                    : `${registered} зареєстровано`}
+                  {free !== null && (
+                    <span className="text-slate-400">
+                      · {free} місць вільно
+                    </span>
+                  )}
+                </span>
+                {max && (
+                  <span
+                    style={{
+                      color: color.text,
+                      fontWeight: 600,
+                      fontSize: "12px",
+                    }}
+                  >
+                    {Math.round(progress)}%
+                  </span>
                 )}
               </div>
               {max && (
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="rounded-full overflow-hidden"
+                  style={{ height: "5px", background: "rgba(59,130,246,0.08)" }}
+                >
                   <div
                     className="h-full rounded-full"
                     style={{
-                      width: `${Math.min((registered / max) * 100, 100)}%`,
-                      background: color.bar,
+                      width: `${progress}%`,
+                      background: `linear-gradient(90deg, ${color.bar}, ${color.bar}cc)`,
                     }}
                   />
                 </div>
@@ -299,11 +395,23 @@ export default function AdminEventDetailPage() {
         </div>
 
         {/* RIGHT — participants */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <span className="text-sm font-medium text-slate-800">Учасники</span>
-            <span className="text-xs text-slate-400">
-              {participants.length} зареєстровано
+        <div style={glass}>
+          <div
+            className="flex items-center justify-between px-5 py-4"
+            style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+          >
+            <span className="text-sm font-semibold text-slate-800">
+              Учасники
+            </span>
+            <span
+              className="text-xs px-2 py-0.5 rounded-full"
+              style={{
+                background: "#eff6ff",
+                color: "#1d4ed8",
+                fontWeight: 600,
+              }}
+            >
+              {participants.length}
             </span>
           </div>
 
@@ -313,16 +421,20 @@ export default function AdminEventDetailPage() {
             </div>
           ) : (
             <div>
-              {participants.map((p) => {
+              {participants.map((p, i) => {
                 const avatarColor = getAvatarColor(p.user.id);
                 const initials = getInitials(p.user.fullName, p.user.email);
                 return (
                   <div
                     key={p.registrationId}
-                    className="flex items-center gap-3 px-5 py-3 border-b border-slate-50 last:border-0"
+                    className="flex items-center gap-3 px-5 py-3"
+                    style={{
+                      borderTop:
+                        i > 0 ? "1px solid rgba(59,130,246,0.06)" : "none",
+                    }}
                   >
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0"
                       style={{
                         background: avatarColor.bg,
                         color: avatarColor.color,
@@ -331,7 +443,7 @@ export default function AdminEventDetailPage() {
                       {initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 truncate">
+                      <p className="text-sm font-semibold text-slate-800 truncate">
                         {p.user.fullName || p.user.email}
                       </p>
                       <p className="text-xs text-slate-400 truncate">
@@ -345,7 +457,18 @@ export default function AdminEventDetailPage() {
                           onClick={() =>
                             setParticipantToCancel(p.registrationId)
                           }
-                          className="flex-shrink-0 text-xs px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 transition"
+                          className="flex-shrink-0 text-xs px-2.5 py-1 rounded-xl font-medium transition"
+                          style={{
+                            color: "#e11d48",
+                            background: "#fff1f2",
+                            border: "1px solid #fecdd3",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "#ffe4e6";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "#fff1f2";
+                          }}
                         >
                           Скасувати
                         </button>
@@ -356,14 +479,26 @@ export default function AdminEventDetailPage() {
             </div>
           )}
         </div>
+
+        {/* Feedbacks */}
         {event.status === "COMPLETED" && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <span className="text-sm font-medium text-slate-800">
+          <div style={{ ...glass, marginTop: "0" }}>
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+            >
+              <span className="text-sm font-semibold text-slate-800">
                 Відгуки учасників
               </span>
-              <span className="text-xs text-slate-400">
-                {feedbacks.length} відгуків
+              <span
+                className="text-xs px-2 py-0.5 rounded-full"
+                style={{
+                  background: "#eff6ff",
+                  color: "#1d4ed8",
+                  fontWeight: 600,
+                }}
+              >
+                {feedbacks.length}
               </span>
             </div>
             <div className="p-5">
@@ -371,10 +506,15 @@ export default function AdminEventDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Report */}
         {event.status === "COMPLETED" && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mt-4">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <span className="text-sm font-medium text-slate-800">
+          <div style={{ ...glass, marginTop: "0" }}>
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+            >
+              <span className="text-sm font-semibold text-slate-800">
                 Звіт про подію
               </span>
               {report && (
@@ -394,6 +534,7 @@ export default function AdminEventDetailPage() {
           </div>
         )}
       </div>
+
       {showCancelConfirm && (
         <ConfirmModal
           title="Скасувати подію?"
@@ -405,7 +546,6 @@ export default function AdminEventDetailPage() {
           onCancel={() => setShowCancelConfirm(false)}
         />
       )}
-
       {showDeleteConfirm && (
         <ConfirmModal
           title="Видалити подію?"
@@ -417,7 +557,6 @@ export default function AdminEventDetailPage() {
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
-
       {participantToCancel && (
         <ConfirmModal
           title="Скасувати реєстрацію?"

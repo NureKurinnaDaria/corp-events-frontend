@@ -94,10 +94,17 @@ export default function AdminEventsPage({
     <div>
       <div className="mb-5 flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-medium text-slate-800 mb-1">
+          <h1
+            className="text-slate-900 mb-1"
+            style={{
+              fontSize: "22px",
+              fontWeight: 700,
+              letterSpacing: "-0.4px",
+            }}
+          >
             {archiveMode ? "Архів подій" : "Події"}
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             {archiveMode
               ? "Завершені корпоративні заходи"
               : "Керування корпоративними подіями"}
@@ -112,7 +119,19 @@ export default function AdminEventsPage({
         {!archiveMode && (
           <button
             onClick={() => navigate("/admin/events/create")}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-xl transition"
+            style={{
+              background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+              border: "none",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #1d4ed8, #1e40af)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #2563eb, #1d4ed8)";
+            }}
           >
             <svg
               width="14"
@@ -131,7 +150,17 @@ export default function AdminEventsPage({
       </div>
 
       {/* Filter row */}
-      <div className="bg-white rounded-xl border border-slate-200 px-4 py-2.5 mb-2 flex items-center gap-3 flex-wrap">
+      <div
+        className="px-4 py-2.5 mb-2 flex items-center gap-3 flex-wrap rounded-2xl"
+        style={{
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(59,130,246,0.10)",
+          boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
+        }}
+      >
+        {" "}
         <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2">
           <SearchIcon />
           <input
@@ -142,7 +171,6 @@ export default function AdminEventsPage({
             className="flex-1 text-sm text-slate-700 placeholder-slate-400 outline-none"
           />
         </div>
-
         <select
           value={format}
           onChange={(e) => setFormat(e.target.value as FormatFilter)}
@@ -152,7 +180,6 @@ export default function AdminEventsPage({
           <option value="ONLINE">Online</option>
           <option value="OFFLINE">Offline</option>
         </select>
-
         <select
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
@@ -165,7 +192,6 @@ export default function AdminEventsPage({
             </option>
           ))}
         </select>
-
         <select
           value={date}
           onChange={(e) => setDate(e.target.value as DateFilter)}
@@ -175,7 +201,6 @@ export default function AdminEventsPage({
           <option value="this_week">Цього тижня</option>
           <option value="this_month">Цього місяця</option>
         </select>
-
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as StatusFilter)}
@@ -188,8 +213,10 @@ export default function AdminEventsPage({
             </option>
           ))}
         </select>
-
-        <div className="flex border border-slate-200 rounded-lg overflow-hidden ml-auto">
+        <div
+          className="flex rounded-xl overflow-hidden ml-auto"
+          style={{ border: "1px solid rgba(59,130,246,0.12)" }}
+        >
           <button
             onClick={() => setView("grid")}
             className={`p-2 ${view === "grid" ? "bg-blue-600 text-white" : "bg-white text-slate-400"}`}
@@ -206,7 +233,16 @@ export default function AdminEventsPage({
       </div>
 
       {/* Sort row */}
-      <div className="bg-white rounded-xl border border-slate-200 px-4 py-2.5 mb-5 flex items-center gap-3">
+      <div
+        className="px-4 py-2.5 mb-5 flex items-center gap-3 rounded-2xl"
+        style={{
+          background: "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(59,130,246,0.10)",
+          boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
+        }}
+      >
         <span className="text-sm text-slate-500">Сортування:</span>
         <select
           value={sort}

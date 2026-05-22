@@ -17,6 +17,28 @@ function toLocalDateTimeValue(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+const inp: React.CSSProperties = {
+  background: "#f8fafc",
+  border: "1px solid #e2e8f0",
+  fontFamily: "inherit",
+};
+const onFocus = (
+  e: React.FocusEvent<
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  >,
+) => {
+  (e.target as HTMLElement).style.borderColor = "#2563eb";
+  (e.target as HTMLElement).style.background = "#fafcff";
+};
+const onBlur = (
+  e: React.FocusEvent<
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  >,
+) => {
+  (e.target as HTMLElement).style.borderColor = "#e2e8f0";
+  (e.target as HTMLElement).style.background = "#f8fafc";
+};
+
 export default function EventForm({
   initialData,
   onSubmit,
@@ -92,225 +114,307 @@ export default function EventForm({
     }
   };
 
-  const inputClass =
-    "w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white";
-  const labelClass = "block text-xs font-medium text-slate-600 mb-1.5";
-  const sectionLabel =
-    "text-xs font-medium text-slate-400 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100 block";
+  const lbl: React.CSSProperties = {
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "#64748b",
+    marginBottom: "6px",
+    display: "block",
+  };
+  const sectionLbl: React.CSSProperties = {
+    fontSize: "10px",
+    fontWeight: 600,
+    letterSpacing: "0.08em",
+    color: "#94a3b8",
+    textTransform: "uppercase",
+    display: "block",
+    marginBottom: "16px",
+    paddingBottom: "8px",
+    borderBottom: "1px solid rgba(59,130,246,0.07)",
+  };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-4xl">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5">
-          {error}
-        </div>
-      )}
+    <div
+      style={{
+        background: "rgba(255,255,255,0.75)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        border: "1px solid rgba(59,130,246,0.10)",
+        boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
+        borderRadius: "16px",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          height: "4px",
+          background: "linear-gradient(90deg, #2563eb, #6366f1)",
+        }}
+      />
+      <div className="p-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-5">
+            {error}
+          </div>
+        )}
 
-      {/* Основна інформація */}
-      <span className={sectionLabel}>Основна інформація</span>
+        <span style={sectionLbl}>Основна інформація</span>
 
-      <div className="mb-4">
-        <label className={labelClass}>
-          Назва події <span className="text-red-400">*</span>
-        </label>
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Frontend Workshop 2026"
-          className={inputClass}
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className={labelClass}>Опис</label>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Короткий опис події..."
-          rows={3}
-          className={inputClass}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div>
-          <label className={labelClass}>
-            Дата початку <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="datetime-local"
-            name="startAt"
-            value={form.startAt}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>
-            Дата завершення <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="datetime-local"
-            name="endAt"
-            value={form.endAt}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-      </div>
-
-      {/* Формат та місце */}
-      <span className={sectionLabel}>Формат та місце</span>
-
-      <div className="mb-4">
-        <label className={labelClass}>
-          Формат <span className="text-red-400">*</span>
-        </label>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setForm((p) => ({ ...p, format: "ONLINE" }));
-              setError("");
-            }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm rounded-lg border transition ${
-              form.format === "ONLINE"
-                ? "bg-blue-50 border-blue-300 text-blue-700 font-medium"
-                : "bg-white border-slate-300 text-slate-500 hover:bg-slate-50"
-            }`}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect x="2" y="3" width="20" height="14" rx="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
-            </svg>
-            Онлайн
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setForm((p) => ({ ...p, format: "OFFLINE" }));
-              setError("");
-            }}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm rounded-lg border transition ${
-              form.format === "OFFLINE"
-                ? "bg-blue-50 border-blue-300 text-blue-700 font-medium"
-                : "bg-white border-slate-300 text-slate-500 hover:bg-slate-50"
-            }`}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            Офлайн
-          </button>
-        </div>
-      </div>
-
-      {form.format === "ONLINE" && (
-        <div className="mb-6">
-          <label className={labelClass}>
-            Посилання <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="url"
-            name="onlineUrl"
-            value={form.onlineUrl}
-            onChange={handleChange}
-            placeholder="https://meet.google.com/..."
-            className={inputClass}
-          />
-          <p className="text-xs text-slate-400 mt-1.5">
-            Zoom, Google Meet, Teams або інший сервіс
-          </p>
-        </div>
-      )}
-
-      {form.format === "OFFLINE" && (
-        <div className="mb-6">
-          <label className={labelClass}>
-            Місце проведення <span className="text-red-400">*</span>
+        <div className="mb-4">
+          <label style={lbl}>
+            Назва події <span style={{ color: "#f87171" }}>*</span>
           </label>
           <input
             type="text"
-            name="location"
-            value={form.location}
+            name="title"
+            value={form.title}
             onChange={handleChange}
-            placeholder="Конференц-зал A, вул. Хрещатик 1"
-            className={inputClass}
+            placeholder="Frontend Workshop 2026"
+            className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
+            style={inp}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
         </div>
-      )}
 
-      {/* Додаткові параметри */}
-      <span className={sectionLabel}>Додаткові параметри</span>
-
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        <div>
-          <label className={labelClass}>Категорія</label>
-          <select
-            name="categoryId"
-            value={form.categoryId}
+        <div className="mb-4">
+          <label style={lbl}>Опис</label>
+          <textarea
+            name="description"
+            value={form.description}
             onChange={handleChange}
-            className={inputClass}
-          >
-            <option value="">— Без категорії —</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
+            placeholder="Короткий опис події..."
+            rows={3}
+            className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition resize-none"
+            style={inp}
+            onFocus={onFocus}
+            onBlur={onBlur}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {[
+            { label: "Дата початку", name: "startAt" },
+            { label: "Дата завершення", name: "endAt" },
+          ].map((f) => (
+            <div key={f.name}>
+              <label style={lbl}>
+                {f.label} <span style={{ color: "#f87171" }}>*</span>
+              </label>
+              <input
+                type="datetime-local"
+                name={f.name}
+                value={form[f.name as keyof typeof form]}
+                onChange={handleChange}
+                className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none transition"
+                style={inp}
+                onFocus={onFocus}
+                onBlur={onBlur}
+              />
+            </div>
+          ))}
+        </div>
+
+        <span style={sectionLbl}>Формат та місце</span>
+
+        <div className="mb-4">
+          <label style={lbl}>
+            Формат <span style={{ color: "#f87171" }}>*</span>
+          </label>
+          <div className="flex gap-2">
+            {[
+              {
+                val: "ONLINE",
+                icon: (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                ),
+                label: "Онлайн",
+              },
+              {
+                val: "OFFLINE",
+                icon: (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                ),
+                label: "Офлайн",
+              },
+            ].map(({ val, icon, label }) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => {
+                  setForm((p) => ({
+                    ...p,
+                    format: val as "ONLINE" | "OFFLINE",
+                  }));
+                  setError("");
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm rounded-xl transition font-medium"
+                style={
+                  form.format === val
+                    ? {
+                        background: "#eff6ff",
+                        border: "1px solid #bfdbfe",
+                        color: "#1d4ed8",
+                      }
+                    : {
+                        background: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        color: "#64748b",
+                      }
+                }
+              >
+                {icon}
+                {label}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
-        <div>
-          <label className={labelClass}>Максимум учасників</label>
-          <input
-            type="number"
-            name="maxParticipants"
-            value={form.maxParticipants}
-            onChange={handleChange}
-            placeholder="Необмежено"
-            min={1}
-            className={inputClass}
-          />
-          <p className="text-xs text-slate-400 mt-1.5">
-            Залиште порожнім для необмеженої кількості
-          </p>
-        </div>
-      </div>
 
-      {/* Кнопки */}
-      <div className="flex items-center gap-3 pt-5 border-t border-slate-100">
-        <button
-          onClick={handleSubmit}
-          disabled={isLoading}
-          className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition disabled:opacity-50"
+        {form.format === "ONLINE" && (
+          <div className="mb-6">
+            <label style={lbl}>
+              Посилання <span style={{ color: "#f87171" }}>*</span>
+            </label>
+            <input
+              type="url"
+              name="onlineUrl"
+              value={form.onlineUrl}
+              onChange={handleChange}
+              placeholder="https://meet.google.com/..."
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
+              style={inp}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            <p className="text-xs text-slate-400 mt-1.5">
+              Zoom, Google Meet, Teams або інший сервіс
+            </p>
+          </div>
+        )}
+
+        {form.format === "OFFLINE" && (
+          <div className="mb-6">
+            <label style={lbl}>
+              Місце проведення <span style={{ color: "#f87171" }}>*</span>
+            </label>
+            <input
+              type="text"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="Конференц-зал A, вул. Хрещатик 1"
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
+              style={inp}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+          </div>
+        )}
+
+        <span style={sectionLbl}>Додаткові параметри</span>
+
+        <div className="grid grid-cols-2 gap-3 mb-8">
+          <div>
+            <label style={lbl}>Категорія</label>
+            <select
+              name="categoryId"
+              value={form.categoryId}
+              onChange={handleChange}
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none transition cursor-pointer"
+              style={inp}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            >
+              <option value="">— Без категорії —</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={lbl}>Максимум учасників</label>
+            <input
+              type="number"
+              name="maxParticipants"
+              value={form.maxParticipants}
+              onChange={handleChange}
+              placeholder="Необмежено"
+              min={1}
+              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
+              style={inp}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            <p className="text-xs text-slate-400 mt-1.5">
+              Залиште порожнім для необмеженої кількості
+            </p>
+          </div>
+        </div>
+
+        <div
+          className="flex items-center gap-3 pt-5"
+          style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
         >
-          {isLoading ? "Збереження..." : submitLabel}
-        </button>
-        <button
-          onClick={() => navigate(-1)}
-          className="px-6 py-2.5 text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-50 rounded-xl transition"
-        >
-          Скасувати
-        </button>
+          <button
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="px-6 py-2.5 text-sm font-semibold text-white rounded-xl transition disabled:opacity-50"
+            style={{
+              background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+              border: "none",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #1d4ed8, #1e40af)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #2563eb, #1d4ed8)";
+            }}
+          >
+            {isLoading ? "Збереження..." : submitLabel}
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-2.5 text-sm font-medium rounded-xl transition"
+            style={{
+              color: "#64748b",
+              background: "rgba(248,250,252,0.9)",
+              border: "1px solid #e2e8f0",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#f1f5f9";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(248,250,252,0.9)";
+            }}
+          >
+            Скасувати
+          </button>
+        </div>
       </div>
     </div>
   );

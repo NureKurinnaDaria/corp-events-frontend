@@ -10,13 +10,19 @@ export default function SidebarLogo({
   onCollapse,
 }: SidebarLogoProps) {
   return (
-    <div className="px-3 py-4 border-b border-white/10 flex items-center justify-between gap-2">
+    <div
+      className="px-3 py-4 flex items-center justify-between gap-2"
+      style={{ borderBottom: "1px solid rgba(59,130,246,0.08)" }}
+    >
       {!collapsed && (
         <div className="flex items-center gap-2 overflow-hidden">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <AppLogoIcon />
           </div>
-          <span className="text-white font-medium text-sm whitespace-nowrap">
+          <span
+            className="text-slate-800 font-semibold text-sm whitespace-nowrap"
+            style={{ letterSpacing: "-0.2px" }}
+          >
             Corp Events
           </span>
         </div>
@@ -31,7 +37,16 @@ export default function SidebarLogo({
       {!collapsed && (
         <button
           onClick={onCollapse}
-          className="text-white/40 hover:text-white transition flex-shrink-0"
+          className="transition flex-shrink-0 rounded-lg p-1"
+          style={{ color: "#94a3b8" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#2563eb";
+            e.currentTarget.style.background = "#eff6ff";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#94a3b8";
+            e.currentTarget.style.background = "transparent";
+          }}
         >
           <ChevronLeftIcon />
         </button>
