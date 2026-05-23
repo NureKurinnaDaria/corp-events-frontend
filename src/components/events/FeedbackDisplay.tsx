@@ -36,7 +36,7 @@ export default function FeedbackDisplay({ feedback }: FeedbackDisplayProps) {
       </p>
 
       <p className="text-xs text-green-600 mt-3 flex items-center gap-1">
-        ✓ Ваш відгук успішно надіслано
+        Ваш відгук успішно надіслано
       </p>
     </div>
   );

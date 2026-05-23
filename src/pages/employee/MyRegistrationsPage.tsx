@@ -317,7 +317,7 @@ function RegistrationCard({
                   border: "1px solid #bbf7d0",
                 }}
               >
-                Відгук залишено ✓
+                Відгук залишено
               </span>
             ) : (
               <button

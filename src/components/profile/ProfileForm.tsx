@@ -134,7 +134,7 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
         )}
         {success && (
           <div className="bg-green-50 border border-green-200 text-green-600 text-sm rounded-xl px-4 py-3 mb-4">
-            ✓ Профіль успішно оновлено
+            Профіль успішно оновлено
           </div>
         )}
 

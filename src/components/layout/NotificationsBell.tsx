@@ -66,12 +66,119 @@ export default function NotificationsBell() {
     });
   };
 
-  const typeIcon: Record<string, string> = {
-    EVENT_CREATED: "🎉",
-    EVENT_CANCELED: "❌",
-    EVENT_UPDATED: "✏️",
-    FEEDBACK_REMINDER: "📝",
-    REPORT_PUBLISHED: "📋",
+  const typeIconColor: Record<string, string> = {
+    EVENT_CREATED: "#2563eb",
+    EVENT_CANCELED: "#e11d48",
+    EVENT_UPDATED: "#7c3aed",
+    FEEDBACK_REMINDER: "#d97706",
+    REPORT_PUBLISHED: "#059669",
+  };
+
+  const TypeIcon = ({ type, size = 16 }: { type: string; size?: number }) => {
+    const color = typeIconColor[type] ?? "#64748b";
+    const s = size;
+    if (type === "EVENT_CREATED")
+      return (
+        <svg
+          width={s}
+          height={s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+          <line x1="12" y1="14" x2="12" y2="18" />
+          <line x1="10" y1="16" x2="14" y2="16" />
+        </svg>
+      );
+    if (type === "EVENT_CANCELED")
+      return (
+        <svg
+          width={s}
+          height={s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="15" y1="9" x2="9" y2="15" />
+          <line x1="9" y1="9" x2="15" y2="15" />
+        </svg>
+      );
+    if (type === "EVENT_UPDATED")
+      return (
+        <svg
+          width={s}
+          height={s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      );
+    if (type === "FEEDBACK_REMINDER")
+      return (
+        <svg
+          width={s}
+          height={s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      );
+    if (type === "REPORT_PUBLISHED")
+      return (
+        <svg
+          width={s}
+          height={s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+      );
+    return (
+      <svg
+        width={s}
+        height={s}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </svg>
+    );
   };
 
   return (
@@ -161,8 +268,13 @@ export default function NotificationsBell() {
                       n.isRead ? "bg-white" : "bg-blue-50/40"
                     }`}
                   >
-                    <span className="text-base mt-0.5 flex-shrink-0">
-                      {typeIcon[n.type] ?? "🔔"}
+                    <span
+                      className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
+                      style={{
+                        background: `${typeIconColor[n.type] ?? "#64748b"}15`,
+                      }}
+                    >
+                      <TypeIcon type={n.type} size={14} />
                     </span>
                     <div className="flex-1 min-w-0">
                       <p
@@ -202,8 +314,13 @@ export default function NotificationsBell() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start gap-3 mb-4">
-                <span className="text-2xl flex-shrink-0">
-                  {typeIcon[selected.type] ?? "🔔"}
+                <span
+                  className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{
+                    background: `${typeIconColor[selected.type] ?? "#64748b"}15`,
+                  }}
+                >
+                  <TypeIcon type={selected.type} size={20} />
                 </span>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-slate-800 mb-1">
