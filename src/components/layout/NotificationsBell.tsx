@@ -72,6 +72,7 @@ export default function NotificationsBell() {
     EVENT_UPDATED: "#7c3aed",
     FEEDBACK_REMINDER: "#d97706",
     REPORT_PUBLISHED: "#059669",
+    SYSTEM: "#0891b2",
   };
 
   const TypeIcon = ({ type, size = 16 }: { type: string; size?: number }) => {
@@ -162,6 +163,22 @@ export default function NotificationsBell() {
           <line x1="16" y1="13" x2="8" y2="13" />
           <line x1="16" y1="17" x2="8" y2="17" />
           <polyline points="10 9 9 9 8 9" />
+        </svg>
+      );
+    if (type === "SYSTEM")
+      return (
+        <svg
+          width={s}
+          height={s}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
       );
     return (
