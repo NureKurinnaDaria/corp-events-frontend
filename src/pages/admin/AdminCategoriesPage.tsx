@@ -123,7 +123,7 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div>
       {/* Header */}
       <div className="mb-6">
         <h1

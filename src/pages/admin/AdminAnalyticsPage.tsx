@@ -1,54 +1,163 @@
 ﻿import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { analyticsApi } from "../../api/analytics";
 import type { AnalyticsData } from "../../api/analytics";
 import LoadingState from "../../components/common/LoadingState";
 import {
-  BarChart,
-  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
+  BarChart,
+  Bar,
 } from "recharts";
 
-const glassCard: React.CSSProperties = {
-  background: "rgba(255,255,255,0.75)",
-  backdropFilter: "blur(16px)",
-  WebkitBackdropFilter: "blur(16px)",
-  border: "1px solid rgba(59,130,246,0.10)",
-  boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
-  borderRadius: "16px",
-  overflow: "hidden",
-};
-
-const COLORS = ["#3b82f6", "#6366f1", "#8b5cf6", "#a78bfa", "#c4b5fd"];
+const CATEGORY_COLORS = [
+  "#6366f1",
+  "#f59e0b",
+  "#10b981",
+  "#3b82f6",
+  "#ec4899",
+  "#f97316",
+];
+const FORMAT_COLORS = ["#f59e0b", "#3b82f6"];
 
 const KPI_CONFIG = [
   {
     key: "totalEvents",
     label: "Всього подій",
-    accent: "#2563eb",
-    bg: "#eff6ff",
+    grad: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+    shadow: "rgba(37,99,235,0.35)",
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    ),
   },
   {
-    key: "totalRegistrations",
-    label: "Всього реєстрацій",
-    accent: "#7c3aed",
-    bg: "#f5f3ff",
+    key: "activeUsers",
+    label: "Активних співробітників",
+    grad: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+    shadow: "rgba(124,58,237,0.35)",
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
   },
   {
     key: "avgRating",
     label: "Середній рейтинг",
-    accent: "#0891b2",
-    bg: "#ecfeff",
+    grad: "linear-gradient(135deg, #0891b2, #0e7490)",
+    shadow: "rgba(8,145,178,0.35)",
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1"
+      >
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
+  },
+  {
+    key: "avgFillRate",
+    label: "Середня заповненість",
+    grad: "linear-gradient(135deg, #16a34a, #15803d)",
+    shadow: "rgba(22,163,74,0.35)",
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    key: "totalFeedbacks",
+    label: "Всього відгуків",
+    grad: "linear-gradient(135deg, #ea580c, #c2410c)",
+    shadow: "rgba(234,88,12,0.35)",
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    ),
   },
 ];
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span style={{ display: "inline-flex", gap: 2 }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <svg
+          key={i}
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill={i <= Math.round(rating) ? "#f59e0b" : "#e2e8f0"}
+          stroke={i <= Math.round(rating) ? "#f59e0b" : "#e2e8f0"}
+          strokeWidth="1"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+    </span>
+  );
+}
 
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     analyticsApi
@@ -62,99 +171,57 @@ export default function AdminAnalyticsPage() {
   if (!data) return null;
 
   const categoryChartData = [...data.categoryStats]
+    .filter((c) => c.registrationsCount > 0)
     .sort((a, b) => b.registrationsCount - a.registrationsCount)
-    .map((c) => ({
-      name: c.name.length > 12 ? c.name.slice(0, 12) + "…" : c.name,
-      fullName: c.name,
-      реєстрації: c.registrationsCount,
-      події: c.eventsCount,
-    }));
+    .map((c) => ({ name: c.name, value: c.registrationsCount }));
 
-  const topEventsChartData = [...data.topByRegistrations].map((e) => ({
-    name: e.title.length > 18 ? e.title.slice(0, 18) + "…" : e.title,
-    fullName: e.title,
-    реєстрації: e.registrations,
-  }));
-
-  const CustomTooltipCategory = ({ active, payload }: any) => {
+  const DarkTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
-    const d = payload[0].payload;
     return (
-      <div style={{ ...glassCard, padding: "10px 14px", fontSize: "12px" }}>
-        <p className="font-semibold text-slate-800 mb-1">{d.fullName}</p>
-        <p style={{ color: "#2563eb" }}>Реєстрації: {d.реєстрації}</p>
-        <p className="text-slate-500">Подій: {d.події}</p>
+      <div
+        style={{
+          background: "#1e293b",
+          borderRadius: 10,
+          padding: "8px 12px",
+          fontSize: 12,
+          color: "#fff",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+        }}
+      >
+        <p style={{ fontWeight: 600, marginBottom: 2 }}>{payload[0]?.name}</p>
+        <p style={{ color: "#94a3b8" }}>{payload[0]?.value} реєстрацій</p>
       </div>
     );
   };
 
-  const CustomTooltipEvents = ({ active, payload }: any) => {
+  const LineTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
-    const d = payload[0].payload;
     return (
-      <div style={{ ...glassCard, padding: "10px 14px", fontSize: "12px" }}>
-        <p className="font-semibold text-slate-800 mb-1">{d.fullName}</p>
-        <p style={{ color: "#2563eb" }}>Реєстрації: {d.реєстрації}</p>
+      <div
+        style={{
+          background: "#1e293b",
+          borderRadius: 10,
+          padding: "8px 12px",
+          fontSize: 12,
+          color: "#fff",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+        }}
+      >
+        <p style={{ fontWeight: 600, marginBottom: 2 }}>{label}</p>
+        <p style={{ color: "#93c5fd" }}>{payload[0]?.value} подій</p>
       </div>
     );
   };
 
-  const kpiValues: Record<string, React.ReactNode> = {
-    totalEvents: (
-      <span
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-          letterSpacing: "-0.5px",
-          color: "#1e293b",
-        }}
-      >
-        {data.totalEvents}
-      </span>
-    ),
-    totalRegistrations: (
-      <span
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-          letterSpacing: "-0.5px",
-          color: "#1e293b",
-        }}
-      >
-        {data.totalRegistrations}
-      </span>
-    ),
-    avgRating:
-      data.avgRating > 0 ? (
-        <span
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            letterSpacing: "-0.5px",
-            color: "#1e293b",
-          }}
-        >
-          {data.avgRating.toFixed(1)}
-          <span
-            style={{
-              fontSize: "14px",
-              fontWeight: 400,
-              color: "#94a3b8",
-              marginLeft: "4px",
-            }}
-          >
-            / 5
-          </span>
-        </span>
-      ) : (
-        <span style={{ fontSize: "14px", color: "#94a3b8" }}>Немає даних</span>
-      ),
+  const glass = {
+    background: "rgba(255,255,255,0.75)",
+    backdropFilter: "blur(16px)",
+    WebkitBackdropFilter: "blur(16px)" as any,
+    border: "1px solid rgba(59,130,246,0.10)",
+    boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
+    borderRadius: 16,
+    padding: "20px",
   };
-
-  const maxCat = Math.max(
-    ...data.categoryStats.map((c) => c.registrationsCount),
-    1,
-  );
 
   return (
     <div>
@@ -165,217 +232,355 @@ export default function AdminAnalyticsPage() {
         >
           Аналітика
         </h1>
-        <p className="text-sm text-slate-400">Загальна статистика системи</p>
+        <p className="text-sm text-slate-400">
+          Загальна статистика корпоративних подій
+        </p>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-3 gap-4 mb-5">
-        {KPI_CONFIG.map(({ key, label, accent, bg }) => (
-          <div key={key} style={glassCard}>
+      {/* KPI Cards */}
+      <div
+        className="grid gap-4 mb-5"
+        style={{ gridTemplateColumns: "repeat(5, 1fr)" }}
+      >
+        {KPI_CONFIG.map(({ key, label, grad, shadow, icon }) => {
+          const value = data[key as keyof AnalyticsData] as number;
+          const display =
+            key === "avgRating"
+              ? `${value} / 5`
+              : key === "avgFillRate"
+                ? `${value}%`
+                : value;
+          return (
             <div
+              key={key}
               style={{
-                height: "4px",
-                background: `linear-gradient(90deg, ${accent}, ${accent}99)`,
+                background: grad,
+                borderRadius: 16,
+                padding: "18px 20px",
+                boxShadow: `0 8px 24px ${shadow}`,
+                position: "relative",
+                overflow: "hidden",
               }}
-            />
-            <div className="px-5 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <p
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    letterSpacing: "0.06em",
-                    color: "#94a3b8",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {label}
-                </p>
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: bg }}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ background: accent }}
-                  />
-                </div>
+            >
+              {/* Decorative circle */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: -24,
+                  right: -24,
+                  width: 88,
+                  height: 88,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.12)",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.18)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                }}
+              >
+                {icon}
               </div>
-              {kpiValues[key]}
+              <p
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  color: "rgba(255,255,255,0.75)",
+                  textTransform: "uppercase",
+                  marginBottom: 10,
+                }}
+              >
+                {label}
+              </p>
+              <p
+                style={{
+                  fontSize: 30,
+                  fontWeight: 800,
+                  color: "#fff",
+                  letterSpacing: "-1px",
+                  lineHeight: 1,
+                }}
+              >
+                {display}
+              </p>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-2 gap-4 mb-5">
-        <div style={glassCard}>
-          <div
-            className="px-5 py-4"
-            style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+      {/* Row 2: Monthly + Format */}
+      <div
+        className="grid gap-4 mb-4"
+        style={{ gridTemplateColumns: "1fr 300px" }}
+      >
+        <div style={glass}>
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              marginBottom: 16,
+            }}
           >
-            <span className="text-sm font-semibold text-slate-800">
-              Реєстрації за категоріями
-            </span>
-          </div>
-          <div className="px-2 py-4">
-            {categoryChartData.length === 0 ? (
-              <p className="px-3 py-8 text-center text-sm text-slate-400">
-                Немає даних
-              </p>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart
+            Активність по місяцях
+          </p>
+          <ResponsiveContainer width="100%" height={190}>
+            <LineChart data={data.monthlyActivity}>
+              <defs>
+                <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#2563eb" />
+                  <stop offset="100%" stopColor="#6366f1" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
+                allowDecimals={false}
+              />
+              <Tooltip content={<LineTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="події"
+                stroke="url(#lineGrad)"
+                strokeWidth={3}
+                dot={{ fill: "#2563eb", r: 5, strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 7, fill: "#6366f1" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div style={glass}>
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              marginBottom: 16,
+            }}
+          >
+            Онлайн vs Офлайн
+          </p>
+          <ResponsiveContainer width="100%" height={190}>
+            <BarChart
+              data={data.formatStats}
+              barSize={52}
+              margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#f1f5f9"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+                allowDecimals={false}
+              />
+              <Tooltip
+                cursor={{ fill: "rgba(59,130,246,0.04)", radius: 8 }}
+                formatter={(v) => [`${v} подій`]}
+                contentStyle={{
+                  borderRadius: 10,
+                  fontSize: 12,
+                  background: "#1e293b",
+                  color: "#fff",
+                  border: "none",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+                }}
+                labelStyle={{ color: "#fff", fontWeight: 600, marginBottom: 2 }}
+              />
+              <Bar dataKey="value" name="Подій" radius={[8, 8, 0, 0]}>
+                {data.formatStats.map((_, i) => (
+                  <Cell
+                    key={i}
+                    fill={FORMAT_COLORS[i % FORMAT_COLORS.length]}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Row 3: Category + Top by rating */}
+      <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
+        <div style={glass}>
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              marginBottom: 16,
+            }}
+          >
+            Розподіл по категоріях
+          </p>
+          {categoryChartData.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-10">
+              Немає даних
+            </p>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
                   data={categoryChartData}
-                  margin={{ top: 4, right: 16, left: -20, bottom: 4 }}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={82}
+                  innerRadius={44}
+                  paddingAngle={3}
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(59,130,246,0.06)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={false}
-                  />
-                  <Tooltip
-                    content={<CustomTooltipCategory />}
-                    cursor={{ fill: "rgba(59,130,246,0.04)" }}
-                  />
-                  <Bar dataKey="реєстрації" radius={[6, 6, 0, 0]}>
-                    {categoryChartData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
+                  {categoryChartData.map((_, i) => (
+                    <Cell
+                      key={i}
+                      fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<DarkTooltip />} />
+                <Legend
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 12 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
-        <div style={glassCard}>
-          <div
-            className="px-5 py-4"
-            style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+        <div style={glass}>
+          <p
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              marginBottom: 16,
+            }}
           >
-            <span className="text-sm font-semibold text-slate-800">
-              Топ-5 подій за реєстраціями
-            </span>
-          </div>
-          <div className="px-2 py-4">
-            {topEventsChartData.length === 0 ? (
-              <p className="px-3 py-8 text-center text-sm text-slate-400">
-                Немає даних
-              </p>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart
-                  data={topEventsChartData}
-                  layout="vertical"
-                  margin={{ top: 4, right: 16, left: 8, bottom: 4 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(59,130,246,0.06)"
-                    horizontal={false}
-                  />
-                  <XAxis
-                    type="number"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={false}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={90}
-                  />
-                  <Tooltip
-                    content={<CustomTooltipEvents />}
-                    cursor={{ fill: "rgba(59,130,246,0.04)" }}
-                  />
-                  <Bar
-                    dataKey="реєстрації"
-                    radius={[0, 6, 6, 0]}
-                    fill="url(#blueGrad)"
-                  />
-                  <defs>
-                    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#2563eb" />
-                      <stop offset="100%" stopColor="#6366f1" />
-                    </linearGradient>
-                  </defs>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Category popularity */}
-      <div style={glassCard}>
-        <div
-          className="px-5 py-4"
-          style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
-        >
-          <span className="text-sm font-semibold text-slate-800">
-            Популярність категорій
-          </span>
-        </div>
-        {data.categoryStats.length === 0 ? (
-          <p className="px-5 py-4 text-sm text-slate-400">Немає даних</p>
-        ) : (
-          <ul>
-            {[...data.categoryStats]
-              .sort((a, b) => b.registrationsCount - a.registrationsCount)
-              .map((cat, i) => (
-                <li
-                  key={cat.id}
-                  className="flex items-center gap-4 px-5 py-3.5"
+            Топ-5 подій за рейтингом
+          </p>
+          {data.topByRating.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-10">
+              Ще немає відгуків
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {data.topByRating.map((event, i) => (
+                <div
+                  key={event.id}
+                  onClick={() => navigate(`/admin/events/${event.id}`)}
                   style={{
-                    borderTop:
-                      i > 0 ? "1px solid rgba(59,130,246,0.06)" : "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "10px 14px",
+                    borderRadius: 12,
+                    background: "rgba(248,250,252,0.8)",
+                    border: "1px solid #f1f5f9",
+                    cursor: "pointer",
+                    transition: "transform 0.15s, box-shadow 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 6px 20px rgba(59,130,246,0.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  <span className="text-sm font-medium text-slate-700 w-28 flex-shrink-0 truncate">
-                    {cat.name}
-                  </span>
-                  <div
-                    className="flex-1 rounded-full overflow-hidden"
+                  <span
                     style={{
-                      height: "6px",
-                      background: "rgba(59,130,246,0.08)",
+                      width: 28,
+                      height: 28,
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      background: "#2563eb",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#fff",
                     }}
                   >
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${(cat.registrationsCount / maxCat) * 100}%`,
-                        background: `linear-gradient(90deg, ${COLORS[i % COLORS.length]}, ${COLORS[(i + 1) % COLORS.length]})`,
-                      }}
-                    />
-                  </div>
-                  <span className="text-xs text-slate-400 w-28 flex-shrink-0 text-right">
-                    {cat.eventsCount} под.{" "}
-                    <span style={{ color: "#cbd5e1" }}>·</span>{" "}
-                    {cat.registrationsCount} уч.
+                    {i + 1}
                   </span>
-                </li>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#1e293b",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {event.title}
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        marginTop: 2,
+                      }}
+                    >
+                      <Stars rating={event.avgRating} />
+                      <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                        {event.avgRating.toFixed(1)} · {event.feedbackCount}{" "}
+                        відгуків
+                      </span>
+                    </div>
+                  </div>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#cbd5e1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </div>
               ))}
-          </ul>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

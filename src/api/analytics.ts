@@ -20,13 +20,28 @@ export interface CategoryStat {
   registrationsCount: number;
 }
 
+export interface MonthlyActivity {
+  month: string;
+  події: number;
+}
+
+export interface FormatStat {
+  name: string;
+  value: number;
+}
+
 export interface AnalyticsData {
   totalEvents: number;
   totalRegistrations: number;
   avgRating: number;
+  avgFillRate: number;
+  activeUsers: number;
+  totalFeedbacks: number;
   topByRegistrations: TopEvent[];
   topByRating: TopRatedEvent[];
   categoryStats: CategoryStat[];
+  monthlyActivity: MonthlyActivity[];
+  formatStats: FormatStat[];
 }
 
 export const analyticsApi = {

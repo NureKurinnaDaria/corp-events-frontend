@@ -200,7 +200,9 @@ function RegistrationCard({
         border: "1px solid rgba(59,130,246,0.10)",
         boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
         borderRadius: "16px",
+        cursor: "pointer",
       }}
+      onClick={onView}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.boxShadow =
           "0 8px 28px rgba(59,130,246,0.12)";
@@ -259,7 +261,10 @@ function RegistrationCard({
         {/* Actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
-            onClick={onView}
+            onClick={(e) => {
+              e.stopPropagation();
+              onView();
+            }}
             className="px-4 py-2 text-xs rounded-xl transition font-medium"
             style={{
               color: "#64748b",
@@ -280,7 +285,10 @@ function RegistrationCard({
 
           {variant === "upcoming" && (
             <button
-              onClick={onCancel}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel && onCancel();
+              }}
               disabled={isCancelling}
               className="px-4 py-2 text-xs rounded-xl transition font-medium disabled:opacity-50"
               style={{
@@ -313,7 +321,10 @@ function RegistrationCard({
               </span>
             ) : (
               <button
-                onClick={onFeedback}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFeedback && onFeedback();
+                }}
                 className="px-4 py-2 text-xs rounded-xl transition font-medium text-white"
                 style={{
                   background: "linear-gradient(135deg, #2563eb, #1d4ed8)",

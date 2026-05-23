@@ -11,6 +11,7 @@ export default function NotificationsBell() {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const [selected, setSelected] = useState<Notification | null>(null);
 
   const load = () => {
     notificationsApi.getAll().then(setNotifications).catch(console.error);
@@ -22,9 +23,16 @@ export default function NotificationsBell() {
     return () => clearInterval(interval);
   }, []);
 
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (
+        ref.current &&
+        !ref.current.contains(e.target as Node) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -45,8 +53,8 @@ export default function NotificationsBell() {
   };
 
   const handleMarkAll = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     await notificationsApi.markAllAsRead();
-    load();
   };
 
   const formatDate = (dateStr: string) => {
@@ -115,6 +123,7 @@ export default function NotificationsBell() {
               zIndex: 9999,
               transform: "translateY(-100%)", // відкривається вгору
             }}
+            ref={dropdownRef}
             className="w-80 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden"
           >
             {" "}
@@ -147,7 +156,8 @@ export default function NotificationsBell() {
                 notifications.map((n) => (
                   <div
                     key={n.id}
-                    className={`flex gap-3 px-4 py-3 border-b border-slate-50 last:border-0 ${
+                    onClick={() => setSelected(n)}
+                    className={`flex gap-3 px-4 py-3 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50 transition ${
                       n.isRead ? "bg-white" : "bg-blue-50/40"
                     }`}
                   >
@@ -173,6 +183,57 @@ export default function NotificationsBell() {
                   </div>
                 ))
               )}
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Selected notification modal */}
+      {selected &&
+        createPortal(
+          <div
+            className="fixed inset-0 flex items-center justify-center"
+            style={{ zIndex: 10000, background: "rgba(15,23,42,0.5)" }}
+            onClick={() => setSelected(null)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-2xl p-6 w-full"
+              style={{ maxWidth: 400 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-3 mb-4">
+                <span className="text-2xl flex-shrink-0">
+                  {typeIcon[selected.type] ?? "🔔"}
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-800 mb-1">
+                    {selected.title}
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    {formatDate(selected.createdAt)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="text-slate-400 hover:text-slate-600 transition flex-shrink-0"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {selected.message}
+              </p>
             </div>
           </div>,
           document.body,
