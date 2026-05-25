@@ -6,6 +6,7 @@ import {
   TagIcon,
   BarChartIcon,
   ArchiveIcon,
+  UsersIcon,
 } from "../common/icons";
 
 export interface NavItem {
@@ -26,6 +27,7 @@ export const employeeNav: NavItem[] = [
 
 export const adminNav: NavItem[] = [
   { to: "/admin/events", label: "Події", icon: <CalendarIcon /> },
+  { to: "/admin/users", label: "Користувачі", icon: <UsersIcon /> },
   { to: "/admin/categories", label: "Категорії", icon: <TagIcon /> },
   { to: "/admin/analytics", label: "Аналітика", icon: <BarChartIcon /> },
   { to: "/admin/archive", label: "Архів", icon: <ArchiveIcon /> },

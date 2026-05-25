@@ -6,7 +6,7 @@ import { authApi } from "../api/auth";
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string) => Promise<void>;
+  login: (token: string, user: User) => void;
   logout: () => void;
   updateUser: (updated: User) => void;
   isLoading: boolean;
@@ -19,10 +19,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!!localStorage.getItem("token"));
 
+  // Тільки при першому завантаженні сторінки — відновлюємо сесію з localStorage
   useEffect(() => {
-    if (!token) {
+    const savedToken = localStorage.getItem("token");
+    if (!savedToken) {
       setIsLoading(false);
       return;
     }
@@ -35,13 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(null);
       })
       .finally(() => setIsLoading(false));
-  }, [token]);
+  }, []); // порожній масив — лише один раз при mount
 
-  const login = async (newToken: string) => {
+  const login = (newToken: string, newUser: User) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
-    const currentUser = await authApi.getMe();
-    setUser(currentUser);
+    setUser(newUser);
   };
 
   const logout = () => {

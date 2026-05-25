@@ -178,7 +178,7 @@ export default function RegisterPage() {
         position: form.position,
         password: form.password,
       });
-      await saveSession(data.accessToken);
+      saveSession(data.accessToken, data.user);
       navigate("/events");
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, "Помилка реєстрації. Спробуйте ще раз"));

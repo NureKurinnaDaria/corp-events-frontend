@@ -13,8 +13,9 @@ import AdminEventCreatePage from "../pages/admin/AdminEventCreatePage";
 import AdminEventEditPage from "../pages/admin/AdminEventEditPage";
 import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage";
 import AdminAnalyticsPage from "../pages/admin/AdminAnalyticsPage";
-import ProfilePage from "../pages/ProfilePage";
 import AdminArchivePage from "../pages/admin/AdminArchivePage";
+import AdminUsersPage from "../pages/admin/AdminUsersPage";
+import ProfilePage from "../pages/ProfilePage";
 
 export default function AppRouter() {
   return (
@@ -131,6 +132,16 @@ export default function AppRouter() {
           <ProtectedRoute allowedRoles={["ADMIN"]}>
             <Layout>
               <AdminArchivePage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <Layout>
+              <AdminUsersPage />
             </Layout>
           </ProtectedRoute>
         }

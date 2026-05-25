@@ -135,7 +135,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const data = await authApi.login({ email, password });
-      await saveSession(data.accessToken);
+      saveSession(data.accessToken, data.user);
       navigate(data.user.role === "ADMIN" ? "/admin/events" : "/events");
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, "Невірний email або пароль"));
@@ -237,7 +237,6 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setError("");
                 }}
                 placeholder="your@company.com"
                 required
@@ -275,7 +274,6 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    setError("");
                   }}
                   placeholder="••••••••"
                   required
