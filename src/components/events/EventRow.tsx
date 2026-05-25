@@ -96,16 +96,38 @@ export default function EventRow(props: EventRowProps) {
           </span>
           {event.category?.name && (
             <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0"
-              style={{ background: color.bg, color: color.text }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: ".04em",
+                padding: "4px 10px",
+                borderRadius: 100,
+                textTransform: "uppercase",
+                flexShrink: 0,
+                background: color.bg,
+                color: color.text,
+                border: `1px solid ${color.border}`,
+              }}
             >
               {event.category.name}
             </span>
           )}
           {props.isAdmin && (
             <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0"
-              style={{ background: status.bg, color: status.color }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: ".04em",
+                padding: "4px 10px",
+                borderRadius: 100,
+                flexShrink: 0,
+                background: status.bg,
+                color: status.color,
+              }}
             >
               {status.label}
             </span>
@@ -117,14 +139,26 @@ export default function EventRow(props: EventRowProps) {
             {formatDate(event.startAt)}
           </span>
           <span
-            className="flex items-center gap-1 font-medium px-2 py-0.5 rounded-full"
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: ".04em",
+              padding: "4px 10px",
+              borderRadius: 100,
+              textTransform: "uppercase",
               background: event.format === "ONLINE" ? "#eff6ff" : "#fef9c3",
               color: event.format === "ONLINE" ? "#1d4ed8" : "#92400e",
+              border:
+                event.format === "ONLINE"
+                  ? "1px solid #bfdbfe"
+                  : "1px solid #fde68a",
             }}
           >
             {event.format === "ONLINE" ? <OnlineIcon /> : <OfflineIcon />}
-            {event.format === "ONLINE" ? "Online" : "Offline"}
+            {event.format === "ONLINE" ? "ONLINE" : "OFFLINE"}
           </span>
           <span className="flex items-center gap-1">
             <UsersIcon />

@@ -30,6 +30,7 @@ export default function EventsPage() {
   const [successEvent, setSuccessEvent] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const [search, setSearch] = useState("");
   const [format, setFormat] = useState<FormatFilter>("");
@@ -38,6 +39,7 @@ export default function EventsPage() {
   const [sort, setSort] = useState<SortMode>("asc");
 
   useEffect(() => {
+    setTimeout(() => setMounted(true), 50);
     categoriesApi.getAll().then(setCategories).catch(console.error);
     registrationsApi
       .getMyRegistrations()
@@ -62,7 +64,6 @@ export default function EventsPage() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadEvents();
   }, [search, format, categoryId, date, sort]);
 
@@ -83,9 +84,7 @@ export default function EventsPage() {
     }
   };
 
-  const handleCancel = (id: string) => {
-    setConfirmCancelId(id);
-  };
+  const handleCancel = (id: string) => setConfirmCancelId(id);
 
   const handleConfirmCancel = async () => {
     if (!confirmCancelId) return;
@@ -101,145 +100,369 @@ export default function EventsPage() {
     }
   };
 
+  const hasActiveFilters = search || format || categoryId || date;
+
   return (
-    <div>
-      <div className="mb-5">
-        <h1
-          className="text-slate-900 mb-1"
-          style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.4px" }}
-        >
-          Події
-        </h1>
-        <p className="text-sm text-slate-400" style={{ fontWeight: 400 }}>
-          Перегляд майбутніх корпоративних подій
-        </p>
-      </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
-      {/* Filter row 1 */}
-      <div
-        className="px-4 py-2.5 mb-2 flex items-center gap-3 rounded-2xl"
-        style={{
-          background: "rgba(255,255,255,0.72)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: "1px solid rgba(59,130,246,0.10)",
-          boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
-        }}
-      >
-        <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2">
-          <SearchIcon />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Пошук по назві..."
-            className="flex-1 text-sm text-slate-700 placeholder-slate-400 outline-none"
-          />
+        .ep-wrap * { font-family: 'Manrope', sans-serif; box-sizing: border-box; }
+
+        @keyframes ep-fadeUp {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .ep-fade-up { opacity: 0; animation: ep-fadeUp .4s ease forwards; }
+        .ep-d1 { animation-delay: .04s; }
+        .ep-d2 { animation-delay: .10s; }
+        .ep-d3 { animation-delay: .16s; }
+
+        .ep-header {
+          position: relative;
+          background: #fff;
+          border-radius: 20px;
+          padding: 28px 32px;
+          margin-bottom: 16px;
+          border: 1px solid rgba(0,0,0,.06);
+          box-shadow: 0 4px 24px rgba(15,23,42,.07);
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        .ep-header::before {
+          content: '';
+          position: absolute; inset: 0;
+          background:
+            radial-gradient(ellipse 55% 80% at 95% 50%, rgba(37,99,235,.1) 0%, transparent 60%),
+            radial-gradient(ellipse 30% 60% at 5%  60%, rgba(124,58,237,.06) 0%, transparent 55%);
+          pointer-events: none;
+        }
+        .ep-header-text { position: relative; z-index: 1; }
+        .ep-title {
+          font-size: 24px; font-weight: 800; letter-spacing: -.5px;
+          color: #0f172a; margin: 0 0 4px;
+        }
+        .ep-subtitle {
+          font-size: 13px; color: #64748b; font-weight: 500; margin: 0;
+        }
+        .ep-count-badge {
+          position: relative; z-index: 1;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          color: #1d4ed8;
+          font-size: 13px; font-weight: 700;
+          padding: 8px 18px; border-radius: 100px;
+          white-space: nowrap;
+        }
+
+        .ep-filters {
+          background: #fff;
+          border-radius: 16px;
+          border: 1px solid #e8edf5;
+          box-shadow: 0 2px 12px rgba(15,23,42,.05);
+          padding: 16px 20px;
+          margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .ep-search {
+          flex: 1; min-width: 180px;
+          display: flex; align-items: center; gap: 8px;
+          background: #f8fafc;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 8px 12px;
+          transition: border-color .15s;
+        }
+        .ep-search:focus-within {
+          border-color: #93c5fd;
+          background: #fff;
+        }
+        .ep-search input {
+          flex: 1; border: none; background: none; outline: none;
+          font-size: 13px; color: #1e293b; font-weight: 500;
+          font-family: 'Manrope', sans-serif;
+        }
+        .ep-search input::placeholder { color: #94a3b8; }
+
+        .ep-select {
+          background: #f8fafc;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          padding: 8px 12px;
+          font-size: 13px; font-weight: 500;
+          color: #475569;
+          outline: none; cursor: pointer;
+          font-family: 'Manrope', sans-serif;
+          transition: border-color .15s;
+          appearance: none;
+          padding-right: 28px;
+          background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+        }
+        .ep-select:focus { border-color: #93c5fd; background-color: #fff; }
+        .ep-select.active { border-color: #2563eb; color: #1d4ed8; background-color: #eff6ff; }
+
+        .ep-divider {
+          width: 1px; height: 28px; background: #e2e8f0; flex-shrink: 0;
+        }
+
+        .ep-view-toggle {
+          display: flex;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+        .ep-view-btn {
+          padding: 7px 10px; border: none; cursor: pointer;
+          transition: all .15s; background: #f8fafc; color: #94a3b8;
+          display: flex; align-items: center;
+        }
+        .ep-view-btn.active { background: #2563eb; color: #fff; }
+        .ep-view-btn:first-child { border-right: 1px solid #e2e8f0; }
+
+        .ep-sort-row {
+          display: flex; align-items: center; gap: 8px;
+          margin-bottom: 20px;
+        }
+        .ep-sort-label {
+          font-size: 12px; font-weight: 600; color: #94a3b8;
+          text-transform: uppercase; letter-spacing: .05em;
+        }
+        .ep-sort-btn {
+          font-size: 12px; font-weight: 600;
+          padding: 5px 14px; border-radius: 100px;
+          border: 1.5px solid #e2e8f0;
+          background: #f8fafc; color: #64748b;
+          cursor: pointer; transition: all .15s;
+          font-family: 'Manrope', sans-serif;
+        }
+        .ep-sort-btn.active {
+          background: #0f172a; color: #fff; border-color: #0f172a;
+        }
+
+        .ep-empty {
+          text-align: center; padding: 60px 20px;
+          background: #fff; border-radius: 16px;
+          border: 1px solid #e8edf5;
+        }
+        .ep-empty-icon {
+          font-size: 40px; margin-bottom: 12px;
+        }
+        .ep-empty-text {
+          font-size: 15px; font-weight: 600; color: #475569; margin: 0 0 4px;
+        }
+        .ep-empty-sub {
+          font-size: 13px; color: #94a3b8; margin: 0;
+        }
+
+        .ep-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .ep-list { display: flex; flex-direction: column; gap: 10px; }
+
+        .ep-card-wrap { opacity: 0; animation: ep-fadeUp .35s ease forwards; }
+      `}</style>
+
+      <div className="ep-wrap">
+        {/* Header */}
+        <div className={`ep-header${mounted ? " ep-fade-up" : ""}`}>
+          <div className="ep-header-text">
+            <h1 className="ep-title">Події</h1>
+            <p className="ep-subtitle">
+              Перегляд майбутніх корпоративних подій
+            </p>
+          </div>
+          {!isLoading && (
+            <span className="ep-count-badge">
+              {events.length}{" "}
+              {events.length === 1
+                ? "подія"
+                : events.length < 5
+                  ? "події"
+                  : "подій"}
+            </span>
+          )}
         </div>
 
-        <select
-          value={format}
-          onChange={(e) => setFormat(e.target.value as FormatFilter)}
-          className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none cursor-pointer"
-        >
-          <option value="">Формат</option>
-          <option value="ONLINE">Online</option>
-          <option value="OFFLINE">Offline</option>
-        </select>
+        {/* Filters */}
+        <div className={`ep-filters${mounted ? " ep-fade-up ep-d1" : ""}`}>
+          <div className="ep-search">
+            <SearchIcon />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Пошук по назві..."
+            />
+          </div>
 
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none cursor-pointer"
-        >
-          <option value="">Категорія</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={date}
-          onChange={(e) => setDate(e.target.value as DateFilter)}
-          className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none cursor-pointer"
-        >
-          <option value="">Дата</option>
-          <option value="this_week">Цього тижня</option>
-          <option value="this_month">Цього місяця</option>
-        </select>
-
-        <div className="flex border border-slate-200 rounded-lg overflow-hidden ml-auto">
-          <button
-            onClick={() => setView("grid")}
-            className={`p-2 ${view === "grid" ? "bg-blue-600 text-white" : "bg-white text-slate-400"}`}
+          <select
+            value={format}
+            onChange={(e) => setFormat(e.target.value as FormatFilter)}
+            className={`ep-select${format ? " active" : ""}`}
           >
-            <GridIcon />
+            <option value="">Формат</option>
+            <option value="ONLINE">Online</option>
+            <option value="OFFLINE">Offline</option>
+          </select>
+
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className={`ep-select${categoryId ? " active" : ""}`}
+          >
+            <option value="">Категорія</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={date}
+            onChange={(e) => setDate(e.target.value as DateFilter)}
+            className={`ep-select${date ? " active" : ""}`}
+          >
+            <option value="">Дата</option>
+            <option value="this_week">Цього тижня</option>
+            <option value="this_month">Цього місяця</option>
+          </select>
+
+          {hasActiveFilters && (
+            <>
+              <div className="ep-divider" />
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setFormat("");
+                  setCategoryId("");
+                  setDate("");
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#e11d48",
+                  fontFamily: "Manrope, sans-serif",
+                  padding: "0 4px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                ✕ Скинути
+              </button>
+            </>
+          )}
+
+          <div className="ep-divider" />
+
+          <div className="ep-view-toggle">
+            <button
+              className={`ep-view-btn${view === "grid" ? " active" : ""}`}
+              onClick={() => setView("grid")}
+            >
+              <GridIcon />
+            </button>
+            <button
+              className={`ep-view-btn${view === "list" ? " active" : ""}`}
+              onClick={() => setView("list")}
+            >
+              <ListIcon />
+            </button>
+          </div>
+        </div>
+
+        {/* Sort row */}
+        <div className={`ep-sort-row${mounted ? " ep-fade-up ep-d2" : ""}`}>
+          <span className="ep-sort-label">Сортування:</span>
+          <button
+            className={`ep-sort-btn${sort === "asc" ? " active" : ""}`}
+            onClick={() => setSort("asc")}
+          >
+            ↑ Найближчі
           </button>
           <button
-            onClick={() => setView("list")}
-            className={`p-2 ${view === "list" ? "bg-blue-600 text-white" : "bg-white text-slate-400"}`}
+            className={`ep-sort-btn${sort === "desc" ? " active" : ""}`}
+            onClick={() => setSort("desc")}
           >
-            <ListIcon />
+            ↓ Найпізніші
           </button>
         </div>
-      </div>
 
-      {/* Filter row 2 */}
-      <div
-        className="px-4 py-2.5 mb-5 flex items-center gap-3 rounded-2xl"
-        style={{
-          background: "rgba(255,255,255,0.72)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: "1px solid rgba(59,130,246,0.10)",
-          boxShadow: "0 2px 12px rgba(59,130,246,0.05)",
-        }}
-      >
-        <span className="text-sm text-slate-500">Сортування:</span>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortMode)}
-          className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none cursor-pointer"
-        >
-          <option value="asc">Найближчі</option>
-          <option value="desc">Найпізніші</option>
-        </select>
+        {/* Content */}
+        <div className={mounted ? "ep-fade-up ep-d3" : ""}>
+          {isLoading ? (
+            <LoadingState />
+          ) : events.length === 0 ? (
+            <div className="ep-empty">
+              <div className="ep-empty-icon">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </div>
+              <p className="ep-empty-text">Подій не знайдено</p>
+              <p className="ep-empty-sub">
+                Спробуйте змінити фільтри або пошуковий запит
+              </p>
+            </div>
+          ) : view === "grid" ? (
+            <div className="ep-grid">
+              {events.map((e, i) => (
+                <div
+                  key={e.id}
+                  className="ep-card-wrap"
+                  style={{ animationDelay: `${i * 0.05}s` }}
+                >
+                  <EventCard
+                    event={e}
+                    isRegistered={isRegistered(e.id)}
+                    onView={handleView}
+                    onRegister={handleRegister}
+                    onCancel={handleCancel}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="ep-list">
+              {events.map((e, i) => (
+                <div
+                  key={e.id}
+                  className="ep-card-wrap"
+                  style={{ animationDelay: `${i * 0.04}s` }}
+                >
+                  <EventRow
+                    event={e}
+                    isRegistered={isRegistered(e.id)}
+                    onView={handleView}
+                    onRegister={handleRegister}
+                    onCancel={handleCancel}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Content */}
-      {isLoading ? (
-        <LoadingState />
-      ) : events.length === 0 ? (
-        <LoadingState text="Подій не знайдено" />
-      ) : view === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events.map((e) => (
-            <EventCard
-              key={e.id}
-              event={e}
-              isRegistered={isRegistered(e.id)}
-              onView={handleView}
-              onRegister={handleRegister}
-              onCancel={handleCancel}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {events.map((e) => (
-            <EventRow
-              key={e.id}
-              event={e}
-              isRegistered={isRegistered(e.id)}
-              onView={handleView}
-              onRegister={handleRegister}
-              onCancel={handleCancel}
-            />
-          ))}
-        </div>
-      )}
 
       {successEvent && (
         <SuccessModal
@@ -264,6 +487,6 @@ export default function EventsPage() {
           onCancel={() => setConfirmCancelId(null)}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -77,92 +77,139 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
     }
   };
 
-  const inp: React.CSSProperties = {
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
     background: "#f8fafc",
-    border: "1px solid #e2e8f0",
-    fontFamily: "inherit",
+    border: "1.5px solid #e2e8f0",
+    borderRadius: 10,
+    padding: "9px 14px",
+    fontSize: 13,
+    color: "#1e293b",
+    outline: "none",
+    transition: "border-color .15s, background .15s",
+    fontFamily: "Manrope, sans-serif",
+    fontWeight: 500,
   };
   const onFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.target.style.borderColor = "#2563eb";
-    e.target.style.background = "#fafcff";
+    e.target.style.borderColor = "#93c5fd";
+    e.target.style.background = "#fff";
   };
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.style.borderColor = "#e2e8f0";
     e.target.style.background = "#f8fafc";
   };
-  const lbl: React.CSSProperties = {
-    fontSize: "11px",
-    fontWeight: 500,
+  const labelStyle: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 700,
     color: "#64748b",
-    marginBottom: "6px",
+    letterSpacing: ".03em",
     display: "block",
+    marginBottom: 6,
   };
   const sectionLabel: React.CSSProperties = {
-    fontSize: "10px",
-    fontWeight: 600,
-    letterSpacing: "0.08em",
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: ".08em",
     color: "#94a3b8",
     textTransform: "uppercase",
-    marginBottom: "12px",
+    marginBottom: 14,
   };
 
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.75)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: "1px solid rgba(59,130,246,0.10)",
-        boxShadow: "0 4px 24px rgba(59,130,246,0.07)",
-        borderRadius: "16px",
+        background: "#fff",
+        borderRadius: 16,
+        border: "1px solid #e8edf5",
+        boxShadow: "0 2px 12px rgba(15,23,42,.05)",
         overflow: "hidden",
       }}
     >
       <div
         style={{
-          height: "4px",
+          height: 3,
           background: "linear-gradient(90deg, #2563eb, #1d4ed8)",
         }}
       />
-      <div className="p-6">
+      <div style={{ padding: "24px" }}>
         <p style={sectionLabel}>Редагування профілю</p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-4">
+          <div
+            style={{
+              background: "#fff1f2",
+              border: "1px solid #fecdd3",
+              color: "#e11d48",
+              fontSize: 13,
+              borderRadius: 10,
+              padding: "10px 14px",
+              marginBottom: 16,
+            }}
+          >
             {error}
           </div>
         )}
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-600 text-sm rounded-xl px-4 py-3 mb-4">
+          <div
+            style={{
+              background: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              color: "#16a34a",
+              fontSize: 13,
+              borderRadius: 10,
+              padding: "10px 14px",
+              marginBottom: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#16a34a"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
             Профіль успішно оновлено
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 12,
+            marginBottom: 12,
+          }}
+        >
           <div>
-            <label style={lbl}>Повне ім'я</label>
+            <label style={labelStyle}>Повне ім'я</label>
             <input
               type="text"
               name="fullName"
               value={form.fullName}
               onChange={handleChange}
               placeholder="Іван Петренко"
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
-              style={inp}
+              style={inputStyle}
               onFocus={onFocus}
               onBlur={onBlur}
             />
           </div>
           <div>
-            <label style={lbl}>Телефон</label>
+            <label style={labelStyle}>Телефон</label>
             <input
               type="tel"
               name="phone"
               value={form.phone}
               onChange={handleChange}
               placeholder="+380000000000"
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
-              style={inp}
+              style={inputStyle}
               onFocus={onFocus}
               onBlur={onBlur}
             />
@@ -170,16 +217,15 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
         </div>
 
         {!isAdmin(user) && (
-          <div className="mb-5">
-            <label style={lbl}>Посада</label>
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>Посада</label>
             <input
               type="text"
               name="position"
               value={form.position}
               onChange={handleChange}
               placeholder="Frontend Developer"
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition"
-              style={inp}
+              style={inputStyle}
               onFocus={onFocus}
               onBlur={onBlur}
             />
@@ -187,55 +233,80 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
         )}
 
         <div
-          className="pt-5 mb-5"
-          style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}
+          style={{
+            borderTop: "1px solid #f1f5f9",
+            paddingTop: 20,
+            marginBottom: 20,
+          }}
         >
           <p style={sectionLabel}>Зміна пароля (необов'язково)</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+          >
             <div>
-              <label style={lbl}>Новий пароль</label>
-              <div className="relative">
+              <label style={labelStyle}>Новий пароль</label>
+              <div style={{ position: "relative" }}>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={form.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition pr-10"
-                  style={inp}
+                  style={{ ...inputStyle, paddingRight: 40 }}
                   onFocus={onFocus}
                   onBlur={onBlur}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                  style={{
+                    position: "absolute",
+                    right: 12,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#94a3b8",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
-              <p className="text-slate-400 mt-1.5" style={{ fontSize: "10px" }}>
+              <p style={{ fontSize: 10, color: "#94a3b8", marginTop: 5 }}>
                 Мін. 8 символів, велика літера, цифра
               </p>
             </div>
             <div>
-              <label style={lbl}>Підтвердити пароль</label>
-              <div className="relative">
+              <label style={labelStyle}>Підтвердити пароль</label>
+              <div style={{ position: "relative" }}>
                 <input
                   type={showConfirm ? "text" : "password"}
                   name="confirmPassword"
                   value={form.confirmPassword}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-300 outline-none transition pr-10"
-                  style={inp}
+                  style={{ ...inputStyle, paddingRight: 40 }}
                   onFocus={onFocus}
                   onBlur={onBlur}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                  style={{
+                    position: "absolute",
+                    right: 12,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#94a3b8",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
                   {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
@@ -247,16 +318,22 @@ export default function ProfileForm({ user, onSave }: ProfileFormProps) {
         <button
           onClick={handleSubmit}
           disabled={isLoading}
-          className="w-full py-2.5 text-sm rounded-xl transition text-white"
           style={{
+            width: "100%",
+            padding: "12px 20px",
             background: isLoading
               ? "#93c5fd"
               : "linear-gradient(135deg, #2563eb, #1d4ed8)",
+            color: "#fff",
             border: "none",
-            fontWeight: 600,
+            borderRadius: 10,
+            fontSize: 14,
+            fontWeight: 700,
             cursor: isLoading ? "not-allowed" : "pointer",
-            fontFamily: "inherit",
-            letterSpacing: "-0.1px",
+            fontFamily: "Manrope, sans-serif",
+            letterSpacing: "-.1px",
+            boxShadow: isLoading ? "none" : "0 4px 16px rgba(37,99,235,.25)",
+            transition: "all .2s",
           }}
         >
           {isLoading ? "Збереження..." : "Зберегти зміни"}

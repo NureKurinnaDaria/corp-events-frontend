@@ -91,11 +91,18 @@ export default function EventCard(props: EventCardProps) {
         {/* Category + format */}
         <div className="flex items-center justify-between mb-3">
           <span
-            className="text-xs font-semibold px-2.5 py-1 rounded-full"
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: ".04em",
+              padding: "5px 12px",
+              borderRadius: 100,
+              textTransform: "uppercase",
               background: color.bg,
               color: color.text,
-              letterSpacing: "0.01em",
+              border: `1px solid ${color.border}`,
             }}
           >
             {event.category?.name || "Без категорії"}
@@ -103,21 +110,42 @@ export default function EventCard(props: EventCardProps) {
           <div className="flex items-center gap-1.5">
             {props.isAdmin && (
               <span
-                className="text-xs font-medium px-2.5 py-1 rounded-full"
-                style={{ background: status.bg, color: status.color }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: ".04em",
+                  padding: "5px 12px",
+                  borderRadius: 100,
+                  background: status.bg,
+                  color: status.color,
+                }}
               >
                 {status.label}
               </span>
             )}
             <span
-              className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: ".04em",
+                padding: "5px 12px",
+                borderRadius: 100,
+                textTransform: "uppercase",
                 background: event.format === "ONLINE" ? "#eff6ff" : "#fef9c3",
                 color: event.format === "ONLINE" ? "#1d4ed8" : "#92400e",
+                border:
+                  event.format === "ONLINE"
+                    ? "1px solid #bfdbfe"
+                    : "1px solid #fde68a",
               }}
             >
               {event.format === "ONLINE" ? <OnlineIcon /> : <OfflineIcon />}
-              {event.format === "ONLINE" ? "Online" : "Offline"}
+              {event.format === "ONLINE" ? "ONLINE" : "OFFLINE"}
             </span>
           </div>
         </div>

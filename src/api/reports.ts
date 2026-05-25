@@ -30,8 +30,15 @@ export const reportsApi = {
     }
   },
 
-  update: async (id: string, text: string): Promise<Report> => {
-    const response = await api.patch<Report>(`/reports/${id}`, { text });
+  update: async (
+    id: string,
+    text: string,
+    notifyParticipants: boolean,
+  ): Promise<Report> => {
+    const response = await api.patch<Report>(`/reports/${id}`, {
+      text,
+      notifyParticipants,
+    });
     return response.data;
   },
 
