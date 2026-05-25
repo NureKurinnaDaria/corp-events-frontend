@@ -50,3 +50,36 @@ export const analyticsApi = {
     return response.data;
   },
 };
+
+export interface ReportEvent {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  format: string;
+  status: string;
+  registrations: number;
+  maxParticipants: number | null;
+  fillRate: number | null;
+  avgRating: number | null;
+  feedbackCount: number;
+}
+
+export interface PeriodReport {
+  from: string;
+  to: string;
+  totalEvents: number;
+  totalRegistrations: number;
+  avgFillRate: number | null;
+  avgRating: number | null;
+  events: ReportEvent[];
+}
+
+export const periodReportApi = {
+  get: async (from: string, to: string): Promise<PeriodReport> => {
+    const response = await api.get<PeriodReport>("/analytics/report", {
+      params: { from, to },
+    });
+    return response.data;
+  },
+};
