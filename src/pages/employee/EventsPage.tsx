@@ -13,6 +13,7 @@ import LoadingState from "../../components/common/LoadingState";
 import { GridIcon, ListIcon, SearchIcon } from "../../components/common/icons";
 import type { Event, Category, MyRegistrationsResponse } from "../../types";
 import type { EventFilters } from "../../api/events";
+import { useEventsListSocket } from "../../hooks/useSocket";
 
 type ViewMode = "grid" | "list";
 type SortMode = "asc" | "desc";
@@ -67,6 +68,35 @@ export default function EventsPage() {
     loadEvents();
   }, [search, format, categoryId, date, sort]);
 
+  // Real-time: оновлення лічильника учасників і нові події
+  useEventsListSocket({
+    onParticipantsUpdated: ({ eventId, participantsCount }) => {
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventId ? { ...e, participantsCount } : e)),
+      );
+    },
+    onEventCreated: (newEvent) => {
+      setEvents((prev) => {
+        // Уникаємо дублювання якщо подія вже є
+        if (prev.some((e) => e.id === newEvent.id)) return prev;
+        // Додаємо відповідно до поточного сортування
+        const updated = [...prev, newEvent as Event];
+        if (sort === "asc") {
+          updated.sort(
+            (a, b) =>
+              new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+          );
+        } else {
+          updated.sort(
+            (a, b) =>
+              new Date(b.startAt).getTime() - new Date(a.startAt).getTime(),
+          );
+        }
+        return updated;
+      });
+    },
+  });
+
   const isRegistered = (eventId: string) =>
     myRegistrations.upcoming.some((r) => r.event.id === eventId);
 
@@ -76,9 +106,10 @@ export default function EventsPage() {
     try {
       await registrationsApi.register(id);
       setSuccessEvent(title);
+      // Оновлюємо реєстрації юзера
       const updated = await registrationsApi.getMyRegistrations();
       setMyRegistrations(updated);
-      loadEvents();
+      // Лічильник оновлює WebSocket (participantsUpdatedGlobal) для всіх браузерів включно з цим
     } catch (error: unknown) {
       setErrorMessage(getApiErrorMessage(error, "Помилка реєстрації"));
     }

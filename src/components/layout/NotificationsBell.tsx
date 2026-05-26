@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNotificationsSocket } from "../../hooks/useSocket";
 import { createPortal } from "react-dom";
 import { notificationsApi } from "../../api/notifications";
 import type { Notification } from "../../api/notifications";
@@ -12,6 +14,24 @@ export default function NotificationsBell() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const [selected, setSelected] = useState<Notification | null>(null);
+
+  // Real-time: отримуємо userId з контексту і підписуємось на нові сповіщення
+  const { user } = useAuth();
+  const userId = user?.id;
+
+  useNotificationsSocket({
+    userId,
+    onNewNotification: (payload) => {
+      setNotifications((prev) => {
+        // уникаємо дублікатів
+        if (prev.some((n) => n.id === payload.id)) return prev;
+        return [
+          { ...payload, createdAt: new Date(payload.createdAt).toISOString() },
+          ...prev,
+        ];
+      });
+    },
+  });
 
   const load = () => {
     notificationsApi.getAll().then(setNotifications).catch(console.error);

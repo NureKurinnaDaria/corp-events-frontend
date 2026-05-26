@@ -25,6 +25,7 @@ import {
 } from "../../components/common/icons";
 import type { Event } from "../../types";
 import type { Feedback } from "../../api/feedback";
+import { useEventSocket } from "../../hooks/useSocket";
 
 type TabId = "my-feedback" | "all-feedbacks" | "report";
 
@@ -58,6 +59,7 @@ export default function EventDetailPage() {
   const [report, setReport] = useState<Report | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("my-feedback");
+  const [canceledByAdmin, setCanceledByAdmin] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 50);
@@ -103,6 +105,26 @@ export default function EventDetailPage() {
       .catch(console.error)
       .finally(() => setIsLoading(false));
   }, [id]);
+
+  // Real-time WebSocket
+  useEventSocket({
+    eventId: id,
+    onStatusChanged: (payload) => {
+      if (payload.status === "CANCELED") {
+        setCanceledByAdmin(true);
+        setEvent((prev) => (prev ? { ...prev, status: "CANCELED" } : prev));
+      } else {
+        setEvent((prev) =>
+          prev ? { ...prev, status: payload.status as any } : prev,
+        );
+      }
+    },
+    onParticipantsUpdated: (payload) => {
+      setEvent((prev) =>
+        prev ? { ...prev, participantsCount: payload.participantsCount } : prev,
+      );
+    },
+  });
 
   const handleRegister = async () => {
     if (!id || !event) return;
@@ -388,6 +410,65 @@ export default function EventDetailPage() {
       `}</style>
 
       <div className="ed-wrap">
+        {/* Real-time: банер скасування події */}
+        {canceledByAdmin && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              background: "linear-gradient(135deg, #fff1f2, #ffe4e6)",
+              border: "1.5px solid #fecdd3",
+              borderRadius: 14,
+              padding: "14px 20px",
+              marginBottom: 16,
+              animation: "ed-fadeUp .4s ease forwards",
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                background: "#fee2e2",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#e11d48"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            </div>
+            <div>
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#be123c",
+                  margin: "0 0 2px",
+                }}
+              >
+                Подію скасовано
+              </p>
+              <p style={{ fontSize: 12, color: "#e11d48", margin: 0 }}>
+                Адміністратор щойно скасував цю подію
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Back */}
         <div
           className={mounted ? "ed-fade-up" : ""}
