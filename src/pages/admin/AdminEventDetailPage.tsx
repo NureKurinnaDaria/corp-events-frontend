@@ -26,10 +26,10 @@ import {
 import type { Event } from "../../types";
 
 const STATUS_CONFIG = {
-  PUBLISHED: { label: "Published", bg: "#f0fdf4", color: "#16a34a" },
-  ONGOING: { label: "Ongoing", bg: "#eff6ff", color: "#1a6fd4" },
-  COMPLETED: { label: "Completed", bg: "#f8fafc", color: "#64748b" },
-  CANCELED: { label: "Canceled", bg: "#fff1f2", color: "#e11d48" },
+  PUBLISHED: { label: "Опубліковано", bg: "#f0fdf4", color: "#16a34a" },
+  ONGOING: { label: "Триває", bg: "#eff6ff", color: "#1a6fd4" },
+  COMPLETED: { label: "Завершено", bg: "#f8fafc", color: "#64748b" },
+  CANCELED: { label: "Скасовано", bg: "#fff1f2", color: "#e11d48" },
 } as const;
 
 const AVATAR_COLORS = [

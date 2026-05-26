@@ -68,32 +68,12 @@ export default function EventsPage() {
     loadEvents();
   }, [search, format, categoryId, date, sort]);
 
-  // Real-time: оновлення лічильника учасників і нові події
+  // Real-time: оновлення лічильника учасників в списку
   useEventsListSocket({
     onParticipantsUpdated: ({ eventId, participantsCount }) => {
       setEvents((prev) =>
         prev.map((e) => (e.id === eventId ? { ...e, participantsCount } : e)),
       );
-    },
-    onEventCreated: (newEvent) => {
-      setEvents((prev) => {
-        // Уникаємо дублювання якщо подія вже є
-        if (prev.some((e) => e.id === newEvent.id)) return prev;
-        // Додаємо відповідно до поточного сортування
-        const updated = [...prev, newEvent as Event];
-        if (sort === "asc") {
-          updated.sort(
-            (a, b) =>
-              new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
-          );
-        } else {
-          updated.sort(
-            (a, b) =>
-              new Date(b.startAt).getTime() - new Date(a.startAt).getTime(),
-          );
-        }
-        return updated;
-      });
     },
   });
 
@@ -109,7 +89,14 @@ export default function EventsPage() {
       // Оновлюємо реєстрації юзера
       const updated = await registrationsApi.getMyRegistrations();
       setMyRegistrations(updated);
-      // Лічильник оновлює WebSocket (participantsUpdatedGlobal) для всіх браузерів включно з цим
+      // Оновлюємо лічильник локально — WebSocket зробить те саме для інших браузерів
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === id
+            ? { ...e, participantsCount: e.participantsCount + 1 }
+            : e,
+        ),
+      );
     } catch (error: unknown) {
       setErrorMessage(getApiErrorMessage(error, "Помилка реєстрації"));
     }

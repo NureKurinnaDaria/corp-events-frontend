@@ -18,10 +18,10 @@ type DateFilter = "" | NonNullable<EventFilters["date"]>;
 type StatusFilter = "" | EventStatus;
 
 const STATUS_LABELS: Record<EventStatus, string> = {
-  PUBLISHED: "Published",
-  ONGOING: "Ongoing",
-  COMPLETED: "Completed",
-  CANCELED: "Canceled",
+  PUBLISHED: "Опубліковано",
+  ONGOING: "Триває",
+  COMPLETED: "Завершено",
+  CANCELED: "Скасовано",
 };
 
 interface AdminEventsPageProps {
