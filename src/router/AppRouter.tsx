@@ -23,7 +23,6 @@ export default function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Employee */}
       <Route
         path="/events"
         element={
@@ -65,7 +64,6 @@ export default function AppRouter() {
         }
       />
 
-      {/* Admin */}
       <Route
         path="/admin/events"
         element={
@@ -147,7 +145,6 @@ export default function AppRouter() {
         }
       />
 
-      {/* Shared */}
       <Route
         path="/profile"
         element={

@@ -107,7 +107,6 @@ export default function AnalyticsCharts({ data, mounted }: Props) {
 
   return (
     <>
-      {/* Row 2 — line chart + bar chart */}
       <div
         className={mounted ? "aap-fade-up aap-d2" : ""}
         style={{
@@ -197,7 +196,6 @@ export default function AnalyticsCharts({ data, mounted }: Props) {
         </div>
       </div>
 
-      {/* Row 3 — pie chart + top by rating */}
       <div
         className={mounted ? "aap-fade-up aap-d3" : ""}
         style={{

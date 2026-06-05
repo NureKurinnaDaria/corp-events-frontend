@@ -15,7 +15,6 @@ interface RegisterPayload {
 }
 
 interface AuthResponse {
-  accessToken: string;
   user: User;
 }
 
@@ -33,5 +32,9 @@ export const authApi = {
   getMe: async (): Promise<User> => {
     const response = await api.get<User>("/auth/me");
     return response.data;
+  },
+
+  logout: async (): Promise<void> => {
+    await api.post("/auth/logout");
   },
 };

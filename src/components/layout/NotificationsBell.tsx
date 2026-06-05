@@ -15,7 +15,6 @@ export default function NotificationsBell() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const [selected, setSelected] = useState<Notification | null>(null);
 
-  // Real-time: отримуємо userId з контексту і підписуємось на нові сповіщення
   const { user } = useAuth();
   const userId = user?.id;
 
@@ -23,7 +22,6 @@ export default function NotificationsBell() {
     userId,
     onNewNotification: (payload) => {
       setNotifications((prev) => {
-        // уникаємо дублікатів
         if (prev.some((n) => n.id === payload.id)) return prev;
         return [
           { ...payload, createdAt: new Date(payload.createdAt).toISOString() },
@@ -63,9 +61,9 @@ export default function NotificationsBell() {
   const handleToggle = () => {
     if (!open && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const dropdownWidth = 320; // w-80 = 320px
+      const dropdownWidth = 320;
       setDropdownPos({
-        top: rect.top - 8, // відступ вгору від кнопки
+        top: rect.top - 8,
         left: rect.left + rect.width / 2 - dropdownWidth / 2,
       });
     }
@@ -75,6 +73,18 @@ export default function NotificationsBell() {
   const handleMarkAll = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     await notificationsApi.markAllAsRead();
+  };
+
+  const handleSelect = (n: Notification) => {
+    setSelected(n);
+    if (!n.isRead) {
+      setNotifications((prev) =>
+        prev.map((item) =>
+          item.id === n.id ? { ...item, isRead: true } : item,
+        ),
+      );
+      notificationsApi.markAsRead(n.id).catch(console.error);
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -220,7 +230,6 @@ export default function NotificationsBell() {
 
   return (
     <div ref={ref} className="relative">
-      {/* Bell button */}
       <button
         ref={buttonRef}
         onClick={handleToggle}
@@ -256,7 +265,6 @@ export default function NotificationsBell() {
         )}
       </button>
 
-      {/* Dropdown via portal - renders outside sidebar to avoid overflow:hidden clipping */}
       {open &&
         createPortal(
           <div
@@ -265,13 +273,12 @@ export default function NotificationsBell() {
               top: dropdownPos.top,
               left: dropdownPos.left,
               zIndex: 9999,
-              transform: "translateY(-100%)", // відкривається вгору
+              transform: "translateY(-100%)",
             }}
             ref={dropdownRef}
             className="w-80 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden"
           >
             {" "}
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
               <span className="text-sm font-medium text-slate-800">
                 Сповіщення
@@ -290,7 +297,6 @@ export default function NotificationsBell() {
                 </button>
               )}
             </div>
-            {/* List */}
             <div className="max-h-80 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="py-8 text-center text-sm text-slate-400">
@@ -300,7 +306,7 @@ export default function NotificationsBell() {
                 notifications.map((n) => (
                   <div
                     key={n.id}
-                    onClick={() => setSelected(n)}
+                    onClick={() => handleSelect(n)}
                     className={`flex gap-3 px-4 py-3 border-b border-slate-50 last:border-0 cursor-pointer hover:bg-slate-50 transition ${
                       n.isRead ? "bg-white" : "bg-blue-50/40"
                     }`}
@@ -337,7 +343,6 @@ export default function NotificationsBell() {
           document.body,
         )}
 
-      {/* Selected notification modal */}
       {selected &&
         createPortal(
           <div

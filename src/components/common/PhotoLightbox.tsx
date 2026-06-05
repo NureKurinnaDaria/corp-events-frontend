@@ -34,7 +34,6 @@ export default function PhotoLightbox({
       className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
       onClick={onClose}
     >
-      {/* Закрити */}
       <button
         onClick={onClose}
         className="absolute top-4 right-4 text-white/70 hover:text-white transition"
@@ -52,14 +51,12 @@ export default function PhotoLightbox({
         </svg>
       </button>
 
-      {/* Лічильник */}
       {photos.length > 1 && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
           {currentIndex + 1} / {photos.length}
         </div>
       )}
 
-      {/* Стрілка ліво */}
       {photos.length > 1 && (
         <button
           onClick={(e) => {
@@ -81,7 +78,6 @@ export default function PhotoLightbox({
         </button>
       )}
 
-      {/* Фото */}
       <img
         src={photos[currentIndex]}
         alt={`Фото ${currentIndex + 1}`}
@@ -89,7 +85,6 @@ export default function PhotoLightbox({
         onClick={(e) => e.stopPropagation()}
       />
 
-      {/* Стрілка право */}
       {photos.length > 1 && (
         <button
           onClick={(e) => {

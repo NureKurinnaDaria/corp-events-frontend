@@ -17,8 +17,6 @@ function getSocket(): Socket {
   return globalSocket;
 }
 
-// Типи подій
-
 export interface EventStatusChangedPayload {
   eventId: string;
   status: string;
@@ -40,7 +38,6 @@ export interface NewNotificationPayload {
   isRead: boolean;
 }
 
-// Хук для сторінки деталей події
 interface UseEventSocketOptions {
   eventId: string | undefined;
   onStatusChanged?: (payload: EventStatusChangedPayload) => void;
@@ -82,8 +79,6 @@ export function useEventSocket({
   }, [eventId]);
 }
 
-// Хук для сповіщень (дзвіночок)
-
 interface UseNotificationsSocketOptions {
   userId: string | undefined;
   onNewNotification?: (payload: NewNotificationPayload) => void;
@@ -115,8 +110,6 @@ export function useNotificationsSocket({
   }, [userId]);
 }
 
-// Хук для списку подій (глобальний лічильник + нові події)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EventCreatedPayload = Record<string, any>;
 
 interface UseEventsListSocketOptions {
@@ -136,8 +129,6 @@ export function useEventsListSocket({
   useEffect(() => {
     const socket = getSocket();
 
-    // Якщо сокет вже підключений — одразу заходимо в кімнату,
-    // інакше чекаємо події connect (щоб emit не загубився)
     if (socket.connected) {
       socket.emit("joinEventsList");
     } else {
@@ -161,7 +152,6 @@ export function useEventsListSocket({
   }, []);
 }
 
-// Утиліта: відключити сокет при логауті
 export function disconnectSocket() {
   if (globalSocket) {
     globalSocket.disconnect();

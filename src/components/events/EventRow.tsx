@@ -77,7 +77,6 @@ export default function EventRow(props: EventRowProps) {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
       }}
     >
-      {/* Accent bar */}
       <div
         className="w-1 self-stretch rounded-full flex-shrink-0"
         style={{
@@ -85,7 +84,6 @@ export default function EventRow(props: EventRowProps) {
         }}
       />
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span
@@ -169,7 +167,6 @@ export default function EventRow(props: EventRowProps) {
         </div>
       </div>
 
-      {/* Actions */}
       {props.isAdmin ? (
         <div className="flex gap-2 flex-shrink-0">
           <button

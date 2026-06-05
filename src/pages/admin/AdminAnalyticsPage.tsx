@@ -54,7 +54,6 @@ export default function AdminAnalyticsPage() {
       `}</style>
 
       <div className="aap-wrap">
-        {/* Header */}
         <div className={`aap-header${mounted ? " aap-fade-up" : ""}`}>
           <div style={{ position: "relative", zIndex: 1 }}>
             <h1

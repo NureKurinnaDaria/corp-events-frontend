@@ -19,7 +19,6 @@ interface LocalPhoto {
   preview: string;
 }
 
-// ── Стопка фото ──────────────────────────────────────────────────────────────
 interface PhotoStackProps {
   photos: string[];
   onOpen: (index: number) => void;
@@ -39,7 +38,6 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
     setActiveIndex((i) => (i - 1 + total) % total);
   };
 
-  // Показуємо до 3 карток у стопці (поточна + 2 під нею)
   const visibleCount = Math.min(total, 3);
 
   return (
@@ -51,21 +49,18 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
         gap: 12,
       }}
     >
-      {/* Стопка */}
       <div
         style={{
           position: "relative",
           width: "100%",
           maxWidth: 420,
-          // висота = висота картки + зміщення стопки
           height: 260 + (visibleCount - 1) * 10,
         }}
       >
-        {/* Картки під низом (від найдальшої до найближчої) */}
         {Array.from({ length: visibleCount - 1 })
           .reverse()
           .map((_, revI) => {
-            const stackPos = visibleCount - 1 - revI; // 2, 1
+            const stackPos = visibleCount - 1 - revI;
             const nextIdx = (activeIndex + stackPos) % total;
             return (
               <div
@@ -99,7 +94,6 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
             );
           })}
 
-        {/* Активна (верхня) картка */}
         <div
           onClick={() => onOpen(activeIndex)}
           style={{
@@ -142,7 +136,6 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
             }}
           />
 
-          {/* Бейдж «відкрити» */}
           <div
             style={{
               position: "absolute",
@@ -176,7 +169,6 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
         </div>
       </div>
 
-      {/* Навігація */}
       {total > 1 && (
         <div
           style={{
@@ -221,7 +213,6 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
             </svg>
           </button>
 
-          {/* Крапки */}
           <div style={{ display: "flex", gap: 6 }}>
             {photos.map((_, i) => (
               <button
@@ -281,14 +272,12 @@ function PhotoStack({ photos, onOpen }: PhotoStackProps) {
         </div>
       )}
 
-      {/* Лічильник */}
       <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
         {activeIndex + 1} / {total} фото · натисніть, щоб відкрити
       </p>
     </div>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function EventReport({
   eventId,
@@ -334,13 +323,11 @@ export default function EventReport({
     setError("");
     try {
       const created = await reportsApi.create(eventId, text.trim());
-      // завантажуємо всі вибрані фото
       for (const lp of localPhotos) {
         const url = await reportsApi.uploadImage(lp.file);
         await reportsApi.addPhoto(created.id, url);
         URL.revokeObjectURL(lp.preview);
       }
-      // отримуємо оновлений звіт з фото
       const final = await reportsApi.getByEvent(eventId);
       onReportChange(final);
       setLocalPhotos([]);
@@ -363,7 +350,6 @@ export default function EventReport({
         text.trim(),
         notifyParticipants,
       );
-      // завантажуємо нові фото якщо є
       for (const lp of localPhotos) {
         const url = await reportsApi.uploadImage(lp.file);
         await reportsApi.addPhoto(updated.id, url);
@@ -428,7 +414,6 @@ export default function EventReport({
   const inputClass =
     "w-full border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none";
 
-  // ── Форма створення / редагування ──
   if (isAdmin && (isEditing || !report)) {
     return (
       <div className="space-y-3">
@@ -449,7 +434,6 @@ export default function EventReport({
           className={inputClass}
         />
 
-        {/* Існуючі фото при редагуванні */}
         {isEditing && report && report.photos.length > 0 && (
           <div>
             <p className="text-xs text-slate-400 mb-2">
@@ -496,7 +480,6 @@ export default function EventReport({
           </div>
         )}
 
-        {/* Лайтбокс для існуючих фото в режимі редагування */}
         {isEditing &&
           report &&
           lightboxIndex !== null &&
@@ -517,7 +500,6 @@ export default function EventReport({
             document.body,
           )}
 
-        {/* Нові фото */}
         {localPhotos.length > 0 && (
           <div>
             <p className="text-xs text-slate-400 mb-2">
@@ -563,7 +545,6 @@ export default function EventReport({
           </div>
         )}
 
-        {/* Лайтбокс для нових фото */}
         {localLightboxIndex !== null &&
           createPortal(
             <PhotoLightbox
@@ -582,7 +563,6 @@ export default function EventReport({
             document.body,
           )}
 
-        {/* Зона додавання фото */}
         <button
           onClick={() => fileInputRef.current?.click()}
           className="w-full border-2 border-dashed border-slate-200 rounded-lg py-3 text-sm text-slate-400 hover:border-blue-300 hover:text-blue-500 transition flex items-center justify-center gap-2"
@@ -610,7 +590,6 @@ export default function EventReport({
           onChange={handleFileSelect}
         />
 
-        {/* Чекбокс сповіщення — тільки при редагуванні існуючого звіту */}
         {isEditing && report && (
           <label className="flex items-center gap-2.5 cursor-pointer select-none group">
             <input
@@ -650,7 +629,6 @@ export default function EventReport({
     );
   }
 
-  // ── Перегляд опублікованого звіту ──
   if (report && !isEditing) {
     return (
       <div className="space-y-3">

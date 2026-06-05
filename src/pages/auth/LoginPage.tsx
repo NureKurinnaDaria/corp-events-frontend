@@ -135,7 +135,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const data = await authApi.login({ email, password });
-      saveSession(data.accessToken, data.user);
+      saveSession(data.user);
       navigate(data.user.role === "ADMIN" ? "/admin/events" : "/events");
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, "Невірний email або пароль"));
@@ -163,7 +163,6 @@ export default function LoginPage() {
             boxShadow: "0 2px 24px rgba(59,130,246,0.07)",
           }}
         >
-          {/* Logo */}
           <div className="flex items-center justify-center gap-2 mb-5">
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
               <AppLogoIcon />
@@ -176,7 +175,6 @@ export default function LoginPage() {
             </span>
           </div>
 
-          {/* Pill */}
           <div className="flex justify-center mb-5">
             <span
               className="flex items-center gap-1.5 text-blue-600 rounded-full px-3 py-1 text-xs"
@@ -196,7 +194,6 @@ export default function LoginPage() {
             }
           `}</style>
 
-          {/* Heading */}
           <h1
             className="text-center text-slate-900 mb-1"
             style={{

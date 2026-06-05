@@ -56,7 +56,6 @@ export default function FeedbackList({ feedbacks }: FeedbackListProps) {
 
   return (
     <div>
-      {/* Середня оцінка */}
       <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
         <span className="text-3xl font-medium text-slate-800">
           {avgRating.toFixed(1)}
@@ -71,7 +70,6 @@ export default function FeedbackList({ feedbacks }: FeedbackListProps) {
         </div>
       </div>
 
-      {/* Список відгуків */}
       <div className="flex flex-col gap-4">
         {feedbacks.map((feedback) => {
           const user = feedback.user;

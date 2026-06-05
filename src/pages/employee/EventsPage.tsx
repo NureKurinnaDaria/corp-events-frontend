@@ -68,7 +68,6 @@ export default function EventsPage() {
     loadEvents();
   }, [search, format, categoryId, date, sort]);
 
-  // Real-time: оновлення лічильника учасників в списку
   useEventsListSocket({
     onParticipantsUpdated: ({ eventId, participantsCount }) => {
       setEvents((prev) =>
@@ -86,17 +85,8 @@ export default function EventsPage() {
     try {
       await registrationsApi.register(id);
       setSuccessEvent(title);
-      // Оновлюємо реєстрації юзера
       const updated = await registrationsApi.getMyRegistrations();
       setMyRegistrations(updated);
-      // Оновлюємо лічильник локально — WebSocket зробить те саме для інших браузерів
-      setEvents((prev) =>
-        prev.map((e) =>
-          e.id === id
-            ? { ...e, participantsCount: e.participantsCount + 1 }
-            : e,
-        ),
-      );
     } catch (error: unknown) {
       setErrorMessage(getApiErrorMessage(error, "Помилка реєстрації"));
     }
@@ -110,7 +100,6 @@ export default function EventsPage() {
       await registrationsApi.cancel(confirmCancelId);
       const updated = await registrationsApi.getMyRegistrations();
       setMyRegistrations(updated);
-      loadEvents();
     } catch (error: unknown) {
       setErrorMessage(getApiErrorMessage(error, "Помилка скасування"));
     } finally {
@@ -289,7 +278,6 @@ export default function EventsPage() {
       `}</style>
 
       <div className="ep-wrap">
-        {/* Header */}
         <div className={`ep-header${mounted ? " ep-fade-up" : ""}`}>
           <div className="ep-header-text">
             <h1 className="ep-title">Події</h1>
@@ -309,7 +297,6 @@ export default function EventsPage() {
           )}
         </div>
 
-        {/* Filters */}
         <div className={`ep-filters${mounted ? " ep-fade-up ep-d1" : ""}`}>
           <div className="ep-search">
             <SearchIcon />
@@ -399,7 +386,6 @@ export default function EventsPage() {
           </div>
         </div>
 
-        {/* Sort row */}
         <div className={`ep-sort-row${mounted ? " ep-fade-up ep-d2" : ""}`}>
           <span className="ep-sort-label">Сортування:</span>
           <button
@@ -416,7 +402,6 @@ export default function EventsPage() {
           </button>
         </div>
 
-        {/* Content */}
         <div className={mounted ? "ep-fade-up ep-d3" : ""}>
           {isLoading ? (
             <LoadingState />

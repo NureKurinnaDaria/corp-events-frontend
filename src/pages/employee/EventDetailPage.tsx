@@ -106,7 +106,6 @@ export default function EventDetailPage() {
       .finally(() => setIsLoading(false));
   }, [id]);
 
-  // Real-time WebSocket
   useEventSocket({
     eventId: id,
     onStatusChanged: (payload) => {
@@ -133,8 +132,6 @@ export default function EventDetailPage() {
     try {
       await registrationsApi.register(id);
       setIsRegistered(true);
-      const updated = await eventsApi.getById(id);
-      setEvent(updated);
       setSuccessMessage(`Ви успішно зареєстровані на подію: ${event.title}`);
     } catch (error: unknown) {
       setErrorMessage(getApiErrorMessage(error, "Помилка реєстрації"));
@@ -153,8 +150,6 @@ export default function EventDetailPage() {
         navigate("/my-registrations");
       } else {
         setIsRegistered(false);
-        const updated = await eventsApi.getById(id);
-        setEvent(updated);
       }
     } catch (error: unknown) {
       setErrorMessage(getApiErrorMessage(error, "Помилка скасування"));
@@ -361,7 +356,6 @@ export default function EventDetailPage() {
         .ed-btn-full { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; border: 1.5px solid #e2e8f0; }
         .ed-btn-completed { background: #f8fafc; color: #94a3b8; cursor: default; border: 1.5px dashed #e2e8f0; }
 
-        /* ─── Tab Panel ─── */
         .ed-panel {
           background: #fff; border-radius: 20px;
           border: 1px solid #e8edf5;
@@ -410,7 +404,6 @@ export default function EventDetailPage() {
       `}</style>
 
       <div className="ed-wrap">
-        {/* Real-time: банер скасування події */}
         {canceledByAdmin && (
           <div
             style={{
@@ -469,7 +462,6 @@ export default function EventDetailPage() {
           </div>
         )}
 
-        {/* Back */}
         <div
           className={mounted ? "ed-fade-up" : ""}
           style={{ marginBottom: 20 }}
@@ -482,7 +474,6 @@ export default function EventDetailPage() {
           </button>
         </div>
 
-        {/* Hero */}
         <div
           className={`ed-hero${mounted ? " ed-fade-up ed-delay-1" : ""}`}
           style={
@@ -570,7 +561,6 @@ export default function EventDetailPage() {
           )}
         </div>
 
-        {/* Dates card */}
         <div className={`ed-card${mounted ? " ed-fade-up ed-delay-2" : ""}`}>
           <div className="ed-card-header">
             <div
@@ -615,7 +605,6 @@ export default function EventDetailPage() {
           </div>
         </div>
 
-        {/* Details card */}
         <div className={`ed-card${mounted ? " ed-fade-up ed-delay-3" : ""}`}>
           <div className="ed-card-header">
             <div
@@ -750,7 +739,6 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="ed-actions">
             <button
               className="ed-btn ed-btn-back"
@@ -786,7 +774,6 @@ export default function EventDetailPage() {
           </div>
         </div>
 
-        {/* Tab Panel — only for completed events */}
         {isCompleted && (
           <div className={`ed-panel${mounted ? " ed-fade-up ed-delay-4" : ""}`}>
             <div className="ed-tabs-bar">
@@ -807,7 +794,6 @@ export default function EventDetailPage() {
             </div>
 
             <div className="ed-tab-body" key={activeTab}>
-              {/* ── My feedback ── */}
               {activeTab === "my-feedback" && (
                 <>
                   {myFeedback ? (
@@ -864,12 +850,10 @@ export default function EventDetailPage() {
                 </>
               )}
 
-              {/* ── All feedbacks ── */}
               {activeTab === "all-feedbacks" && (
                 <FeedbackList feedbacks={otherFeedbacks} />
               )}
 
-              {/* ── Report ── */}
               {activeTab === "report" && (
                 <EventReport
                   eventId={id!}

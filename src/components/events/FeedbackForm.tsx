@@ -35,7 +35,6 @@ export default function FeedbackForm({
 
   return (
     <div>
-      {/* Зірки */}
       <p className="text-sm text-slate-600 mb-2">Оцінка</p>
       <div className="flex items-center gap-1 mb-4">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -55,7 +54,6 @@ export default function FeedbackForm({
         )}
       </div>
 
-      {/* Коментар */}
       <p className="text-sm text-slate-600 mb-2">Коментар</p>
       <textarea
         value={comment}

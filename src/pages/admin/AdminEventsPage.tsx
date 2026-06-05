@@ -218,7 +218,6 @@ export default function AdminEventsPage({
       `}</style>
 
       <div className="aep-wrap">
-        {/* Header */}
         <div className={`aep-header${mounted ? " aep-fade-up" : ""}`}>
           <div className="aep-header-text">
             <h1 className="aep-title">
@@ -276,7 +275,6 @@ export default function AdminEventsPage({
           </div>
         </div>
 
-        {/* Filters */}
         <div className={`aep-filters${mounted ? " aep-fade-up aep-d1" : ""}`}>
           <div className="aep-search">
             <SearchIcon />
@@ -362,7 +360,6 @@ export default function AdminEventsPage({
           )}
         </div>
 
-        {/* Sort row */}
         <div className={`aep-sort-row${mounted ? " aep-fade-up aep-d2" : ""}`}>
           <span className="aep-sort-label">Сортування:</span>
           <button
@@ -379,7 +376,6 @@ export default function AdminEventsPage({
           </button>
         </div>
 
-        {/* Content */}
         <div className={mounted ? "aep-fade-up aep-d3" : ""}>
           {isLoading ? (
             <LoadingState />

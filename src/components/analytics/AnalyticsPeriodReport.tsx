@@ -142,7 +142,6 @@ export default function AnalyticsPeriodReport({
       style={{ marginTop: 16 }}
     >
       <div style={card}>
-        {/* Header row */}
         <div
           style={{
             display: "flex",
@@ -207,7 +206,6 @@ export default function AnalyticsPeriodReport({
           )}
         </div>
 
-        {/* Date range controls */}
         <div
           style={{
             display: "flex",
@@ -276,14 +274,12 @@ export default function AnalyticsPeriodReport({
           </button>
         </div>
 
-        {/* Error */}
         {reportError && (
           <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>
             {reportError}
           </p>
         )}
 
-        {/* Summary KPIs */}
         {report && (
           <div
             style={{
@@ -332,7 +328,6 @@ export default function AnalyticsPeriodReport({
           </div>
         )}
 
-        {/* Events table */}
         {report && report.events.length === 0 && (
           <p
             style={{
@@ -579,7 +574,6 @@ export default function AnalyticsPeriodReport({
           </div>
         )}
 
-        {/* Empty state before first load */}
         {!report && !reportLoading && !reportError && (
           <div
             style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}

@@ -1,9 +1,9 @@
 ﻿import { useState, useEffect } from "react";
 import { categoriesApi } from "../../api/categories";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
-import { getCategoryColor } from "../../utils/categoryColor";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import LoadingState from "../../components/common/LoadingState";
+import CategoryItem from "../../components/categories/CategoryItem";
 import type { Category } from "../../types";
 
 export default function AdminCategoriesPage() {
@@ -219,7 +219,6 @@ export default function AdminCategoriesPage() {
       `}</style>
 
       <div className="acp-wrap">
-        {/* Header */}
         <div className={`acp-header${mounted ? " acp-fade-up" : ""}`}>
           <div className="acp-header-text">
             <h1 className="acp-title">Категорії</h1>
@@ -237,7 +236,6 @@ export default function AdminCategoriesPage() {
           )}
         </div>
 
-        {/* Create form */}
         <div className={`acp-card${mounted ? " acp-fade-up acp-d1" : ""}`}>
           <div className="acp-card-accent" />
           <div className="acp-create-body">
@@ -270,7 +268,6 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
 
-        {/* Search & sort */}
         <div className={`acp-toolbar${mounted ? " acp-fade-up acp-d2" : ""}`}>
           <div className="acp-search">
             <svg
@@ -311,7 +308,6 @@ export default function AdminCategoriesPage() {
           </button>
         </div>
 
-        {/* List */}
         <div className={`acp-list-card${mounted ? " acp-fade-up acp-d3" : ""}`}>
           {isLoading ? (
             <LoadingState />
@@ -328,110 +324,25 @@ export default function AdminCategoriesPage() {
             </div>
           ) : (
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-              {categories.map((category, i) => {
-                const color = getCategoryColor(
-                  String(categories.indexOf(category)),
-                );
-                const isEditing = editingId === category.id;
-                return (
-                  <li
-                    key={category.id}
-                    className="acp-list-item"
-                    style={{
-                      borderTop:
-                        i > 0 ? "1px solid rgba(59,130,246,.06)" : "none",
-                    }}
-                  >
-                    {isEditing ? (
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 8,
-                            alignItems: "center",
-                          }}
-                        >
-                          <input
-                            type="text"
-                            value={editingName}
-                            autoFocus
-                            onChange={(e) => {
-                              setEditingName(e.target.value);
-                              setEditingError("");
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleEditSave();
-                              if (e.key === "Escape") handleEditCancel();
-                            }}
-                            className="acp-input"
-                            style={{ flex: 1 }}
-                          />
-                          <button
-                            onClick={handleEditSave}
-                            disabled={isSaving}
-                            className="acp-btn acp-btn-save"
-                          >
-                            {isSaving ? "..." : "Зберегти"}
-                          </button>
-                          <button
-                            onClick={handleEditCancel}
-                            className="acp-btn acp-btn-cancel"
-                          >
-                            Скасувати
-                          </button>
-                        </div>
-                        {editingError && (
-                          <p
-                            style={{
-                              fontSize: 12,
-                              color: "#e11d48",
-                              marginTop: 6,
-                            }}
-                          >
-                            {editingError}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 700,
-                            padding: "5px 12px",
-                            borderRadius: 100,
-                            background: color.bg,
-                            color: color.text,
-                            border: `1px solid ${color.border}`,
-                          }}
-                        >
-                          {category.name}
-                        </span>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 6,
-                            marginLeft: "auto",
-                          }}
-                        >
-                          <button
-                            onClick={() => handleEditStart(category)}
-                            className="acp-btn acp-btn-blue"
-                          >
-                            Редагувати
-                          </button>
-                          <button
-                            onClick={() => setDeleteTargetId(category.id)}
-                            className="acp-btn acp-btn-danger"
-                          >
-                            Видалити
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </li>
-                );
-              })}
+              {categories.map((category, i) => (
+                <CategoryItem
+                  key={category.id}
+                  category={category}
+                  index={i}
+                  isEditing={editingId === category.id}
+                  editingName={editingName}
+                  editingError={editingError}
+                  isSaving={isSaving}
+                  onEditStart={handleEditStart}
+                  onEditSave={handleEditSave}
+                  onEditCancel={handleEditCancel}
+                  onEditNameChange={(name) => {
+                    setEditingName(name);
+                    setEditingError("");
+                  }}
+                  onDeleteClick={setDeleteTargetId}
+                />
+              ))}
             </ul>
           )}
         </div>

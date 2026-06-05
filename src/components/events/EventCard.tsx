@@ -79,7 +79,6 @@ export default function EventCard(props: EventCardProps) {
         el.style.transform = "translateY(0)";
       }}
     >
-      {/* Gradient top accent — товстіший, з градієнтом */}
       <div
         style={{
           height: "4px",
@@ -88,7 +87,6 @@ export default function EventCard(props: EventCardProps) {
       />
 
       <div className="p-5 flex flex-col flex-1">
-        {/* Category + format */}
         <div className="flex items-center justify-between mb-3">
           <span
             style={{
@@ -150,7 +148,6 @@ export default function EventCard(props: EventCardProps) {
           </div>
         </div>
 
-        {/* Title */}
         <h3
           className="text-slate-900 mb-2 leading-snug"
           style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.3px" }}
@@ -158,12 +155,10 @@ export default function EventCard(props: EventCardProps) {
           {event.title}
         </h3>
 
-        {/* Description */}
         <p className="text-xs text-slate-500 mb-4 line-clamp-2 leading-relaxed flex-1">
           {event.description}
         </p>
 
-        {/* Date */}
         <div
           className="inline-flex items-center gap-1.5 text-xs mb-3 px-2.5 py-1.5 rounded-xl w-fit"
           style={{
@@ -176,7 +171,6 @@ export default function EventCard(props: EventCardProps) {
           {formatDate(event.startAt)}
         </div>
 
-        {/* Participants + progress */}
         <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
           <span className="flex items-center gap-1">
             <UsersIcon />
@@ -203,7 +197,6 @@ export default function EventCard(props: EventCardProps) {
           />
         </div>
 
-        {/* Free spots */}
         <div className="mb-4">
           {free !== null ? (
             <span
@@ -230,7 +223,6 @@ export default function EventCard(props: EventCardProps) {
           )}
         </div>
 
-        {/* Buttons */}
         <div
           className="flex gap-2 pt-3"
           style={{ borderTop: "1px solid rgba(59,130,246,0.07)" }}

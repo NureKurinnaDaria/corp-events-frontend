@@ -306,7 +306,6 @@ export default function AdminEventDetailPage() {
         .adp-progress-track { height: 5px; background: rgba(59,130,246,.08); border-radius: 100px; overflow: hidden; }
         .adp-progress-fill { height: 100%; border-radius: 100px; transition: width .4s ease; }
 
-        /* ─── Tab Panel ─── */
         .adp-panel {
           background: #fff;
           border: 1px solid rgba(0,0,0,.06);
@@ -349,7 +348,6 @@ export default function AdminEventDetailPage() {
           animation: adp-fadeUp .25s ease forwards;
         }
 
-        /* participants list */
         .adp-participant-row {
           display: flex; align-items: center; gap: 12px;
           padding: 11px 0; transition: background .15s;
@@ -365,7 +363,6 @@ export default function AdminEventDetailPage() {
           <ChevronLeftIcon /> Назад до подій
         </button>
 
-        {/* Hero */}
         <div
           className={`adp-hero${mounted ? " adp-fade-up" : ""}`}
           style={{ "--hero-glow": color.bar + "22" } as React.CSSProperties}
@@ -551,9 +548,7 @@ export default function AdminEventDetailPage() {
           </div>
         </div>
 
-        {/* Tab Panel */}
         <div className={`adp-panel${mounted ? " adp-fade-up adp-d1" : ""}`}>
-          {/* Tabs bar */}
           <div className="adp-tabs-bar">
             {tabs.map((tab) => (
               <button
@@ -570,9 +565,7 @@ export default function AdminEventDetailPage() {
             ))}
           </div>
 
-          {/* Tab content */}
           <div className="adp-tab-body" key={activeTab}>
-            {/* ── Participants ── */}
             {activeTab === "participants" && (
               <>
                 {participants.length === 0 ? (
@@ -679,12 +672,10 @@ export default function AdminEventDetailPage() {
               </>
             )}
 
-            {/* ── Feedbacks ── */}
             {activeTab === "feedbacks" && (
               <FeedbackList feedbacks={feedbacks} />
             )}
 
-            {/* ── Report ── */}
             {activeTab === "report" && (
               <EventReport
                 eventId={id!}

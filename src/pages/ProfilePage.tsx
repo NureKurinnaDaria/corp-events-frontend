@@ -93,7 +93,6 @@ export default function ProfilePage() {
       `}</style>
 
       <div className="pp-wrap">
-        {/* Header */}
         <div className={`pp-header${mounted ? " pp-fade-up" : ""}`}>
           <div className="pp-header-text">
             <h1 className="pp-title">Профіль</h1>
